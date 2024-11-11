@@ -1,14 +1,11 @@
 "use client";
-import { generateBarChartData } from "@/helper/BarChartHelper";
-import RootStore from "@/stores/RootStore";
-import { observer } from "mobx-react-lite";
+import { generateBarChartData } from "@/helper/ComboChartContainerHelper";
 import { Chart } from "primereact/chart";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 type BarChartProps = {
   apiData: any;
   cityColors: string[];
-  timesteps: string[];
 };
 
 const chartOptions = {
@@ -45,28 +42,27 @@ const chartOptions = {
     },
   },
 };
-const BarChart = observer((props: { store: RootStore }) => {
+const BarChart: React.FC<BarChartProps> = (props: BarChartProps) => {
   const [chartData, setChartData] = useState<any>([]);
 
-  useMemo(() => {
-    if (!props.store.presentationData) return;
-    console.log(props.store.presentationData);
-    const data = generateBarChartData(
-      props.store.presentationData,
-      props.store.chartColors
-    );
+  useEffect(() => {
+    if (!props.apiData) return;
+    console.log(props.apiData);
+    const data = generateBarChartData(props.apiData, props.cityColors);
     console.log(data);
-    setChartData({ datasets: data.datasets, labels: props.store.timesteps });
-  }, [props.store.presentationData]);
+    setChartData(data);
+  }, [props.apiData]);
 
-  return (
+  return chartData?.datasets?.length ? (
     <Chart
       type="bar"
       data={chartData}
       options={chartOptions}
       className="flex justify-center h-full w-full absolute top-0 left-0 right-0 ml-auto mr-auto"
     />
+  ) : (
+    <></>
   );
-});
+};
 
 export default BarChart;

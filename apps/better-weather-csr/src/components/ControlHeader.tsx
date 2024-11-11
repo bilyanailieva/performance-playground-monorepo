@@ -9,7 +9,7 @@ import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { MultiSelect } from "primereact/multiselect";
 import { Toolbar } from "primereact/toolbar";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { getLocationByName } from "../helper/LocationHelper";
 import { DateBox } from "./Calendar";
 
@@ -92,27 +92,10 @@ export const ControlHeader = observer(() => {
     setVal("");
   };
 
-  const handleSelection = (e: any) => {
-    console.log(e);
-    const shouldUpdate =
-      e.value.length > rootStore.selectedCitiesInfo.length ||
-      e.value.some(
-        (element: {
-          iso_a3: string;
-          latitude?: number | undefined;
-          longitude?: number | undefined;
-          capital?: string | undefined;
-          timezone?: string | undefined;
-        }) =>
-          rootStore.selectedCitiesInfo.find(
-            (el) => el.iso_a3 === element.iso_a3
-          )
-      );
+  const handleSelection = useCallback((e: any) => {
     rootStore.selectedCities(e.value);
     setSelectedLocations(e.value);
-    console.log(shouldUpdate);
-    rootStore.setFrontendData(rootStore.activeTab, shouldUpdate);
-  };
+  }, []);
 
   return (
     <div className="card">
@@ -156,11 +139,6 @@ export const ControlHeader = observer(() => {
               defaultValue={rootStore.headerControls?.endDate ?? ""}
               onChange={(e) => onDateChange(e, "endDate")}
             />
-            <Button
-              onClick={() => rootStore.setFrontendData(rootStore.activeTab)}
-            >
-              Refresh
-            </Button>
           </div>
         }
       ></Toolbar>

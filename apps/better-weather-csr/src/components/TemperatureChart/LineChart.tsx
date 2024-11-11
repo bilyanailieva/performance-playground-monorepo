@@ -1,13 +1,13 @@
 "use client";
-
-import RootStore from "@/stores/RootStore";
-import { observer } from "mobx-react-lite";
+import { UserLocation } from "@/stores/RootStore";
 import { Chart } from "primereact/chart";
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { generateLineChartData } from "./TemperatureChartHelper";
 
 type LineChartProps = {
-  store: RootStore;
+  chartData: any;
+  cityColors: string[];
+  location?: UserLocation;
   field?: string;
 };
 
@@ -22,44 +22,37 @@ export const options = {
       text: "Chart.js Line Chart",
     },
   },
+  // layout: {
+  //   autoPadding: true,
+  // },
   maintainAspectRatio: false,
   normalized: true,
   spanGaps: true,
 };
 
-const LineChart = observer((props: LineChartProps) => {
-  const { store, field } = props;
-
-  // Memoize the chart data to avoid unnecessary recalculations
-  const chartData = useMemo(() => {
-    if (!store.presentationData) return { datasets: [], labels: [] };
-
+const LineChart = (props: LineChartProps) => {
+  const [chartData, setChartData] = useState<any>([]);
+  useEffect(() => {
+    if (!props.chartData) return;
+    console.log(props.cityColors);
     const finalData = generateLineChartData(
-      store.presentationData,
-      store.chartColors,
-      store.selectedLocation,
-      field
+      props.chartData,
+      props.cityColors,
+      props.location,
+      props.field
     );
-
-    return {
-      datasets: finalData.datasets,
-      labels: store.timesteps,
-    };
-  }, [
-    store.presentationData,
-    store.chartColors,
-    store.selectedLocation,
-    field,
-  ]);
-
-  return (
+    setChartData(finalData);
+  }, [props.chartData]);
+  return chartData?.datasets?.length ? (
     <Chart
       className="w-full h-full relative flex-grow"
       type="line"
       data={chartData}
       options={options}
     />
+  ) : (
+    <></>
   );
-});
+};
 
 export default LineChart;

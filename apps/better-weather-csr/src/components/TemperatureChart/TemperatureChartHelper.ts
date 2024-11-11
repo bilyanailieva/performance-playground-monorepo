@@ -1,6 +1,8 @@
+import { europeanCapitals } from "@/helper/eu-countries-capitals.geo";
 import { UserLocation } from "@/stores/RootStore";
-import { calculateMean } from "@/utils/ChartHelpers";
+import { calculateMean, chooseInterval } from "@/utils/ChartHelpers";
 import { getTimestepsByTimeRange } from "@/utils/WeatherInfoHelpers";
+import moment, { Moment } from "moment";
 
 export const generateLineChartData = (
   apiData: any,
@@ -8,37 +10,47 @@ export const generateLineChartData = (
   location?: UserLocation,
   field?: string
 ) => {
-  const finalData: any[] = [];
-  if (!apiData.length) return { datasets: [], labels: [] };
-  apiData.forEach((cityInfo: any, index: number) => {
-    const entryData: any = cityInfo.entryData;
-    const entryFinal = Object.keys(entryData).map((data) => {
-      return calculateMean(entryData[data].temperature2m)?.toFixed(1);
-    });
-    finalData.push({
-      label: cityInfo?.city?.properties?.name ?? "Hello",
-      data: entryFinal,
-      borderColor: cityColors[index],
-      pointBackgroundColor: cityColors[index],
-      fill: false,
-      tension: 1,
-      yAxisID: "yAxis",
-      xAxisID: "xAxis",
-    });
-  });
-  return { datasets: finalData, labels: [] };
+  let data: any = [];
+  if (apiData.length) {
+    const interval = chooseInterval(apiData[0].timeRange);
+    if (interval === "month") {
+      data = getMonthlyLineData(apiData, cityColors);
+    } else if (interval === "day" && field === "minMax") {
+      data = getDailyLineData(apiData, cityColors, location);
+    } else if (interval === "day") {
+      data = getDailyMeanLineData(apiData, cityColors);
+    }
+  }
+  return data;
 };
 
 const getMonthlyLineData = (apiData: any, cityColors: string[]) => {
   const timesteps = getTimestepsByTimeRange(apiData[0].timeRange, "month");
   const finalData: any[] = [];
   apiData.forEach((cityInfo: any, index: number) => {
-    const entryData: any = cityInfo.entryData;
-    const entryFinal = Object.keys(entryData).map((data) => {
-      return calculateMean(entryData[data].temperature2m)?.toFixed(1);
+    const entryData: any = {};
+    cityInfo.time.forEach((timestamp: Moment, index: number) => {
+      const month = moment(timestamp).format("MMM-yy");
+      if (!entryData[month]) {
+        entryData[month] = [];
+      }
+      const value = cityInfo.temperature2m[index];
+      if (!isNaN(value)) {
+        entryData[month].push(value);
+      }
     });
+    const entryFinal = Object.keys(entryData).map((data) => {
+      return calculateMean(entryData[data])?.toFixed(1);
+    });
+    const cityName = europeanCapitals.features.find(
+      (feature) =>
+        feature.properties.latitude?.toFixed(2) ===
+          cityInfo.coords.latitude.toFixed(2) &&
+        feature.properties.longitude?.toFixed(2) ===
+          cityInfo.coords.longitude.toFixed(2)
+    );
     finalData.push({
-      label: cityInfo?.city?.properties?.name ?? "Hello",
+      label: cityName?.properties?.name ?? "Hello",
       data: entryFinal,
       borderColor: cityColors[index],
       pointBackgroundColor: cityColors[index],
@@ -48,7 +60,7 @@ const getMonthlyLineData = (apiData: any, cityColors: string[]) => {
       xAxisID: "xAxis",
     });
   });
-  return { datasets: finalData, labels: [] };
+  return { datasets: finalData, labels: timesteps };
 };
 
 const getDailyLineData = (
@@ -58,19 +70,32 @@ const getDailyLineData = (
 ) => {
   const timesteps = getTimestepsByTimeRange(apiData[0].timeRange, "day");
   const finalData: any[] = [];
-  console.log(apiData);
 
   apiData.forEach((cityInfo: any, index: number) => {
-    const entryData = cityInfo.entryData;
+    const entryData: any = {};
+
+    // Iterate through each timestamp and group data by day
+    cityInfo.time.forEach((timestamp: Moment, index: number) => {
+      const day = moment(timestamp).format("DD-MM-YYYY");
+      if (!entryData[day]) {
+        entryData[day] = [];
+      }
+      const value = cityInfo.temperature2m[index];
+
+      // Check if the value is a valid number before pushing
+      if (!isNaN(value)) {
+        entryData[day].push(value);
+      }
+    });
 
     // Calculate the daily average and format to one decimal place
     const entryFinal = Object.keys(entryData).map((day) => {
-      return Math.max(...entryData[day].temperature2m)?.toFixed(1);
+      return Math.max(...entryData[day])?.toFixed(1);
     });
 
     // Calculate the daily average and format to one decimal place
     const entryFinal2 = Object.keys(entryData).map((day) => {
-      return Math.min(...entryData[day].temperature2m)?.toFixed(1);
+      return Math.min(...entryData[day])?.toFixed(1);
     });
 
     // Push the formatted data for the city
@@ -101,15 +126,32 @@ const getDailyLineData = (
 };
 
 const getDailyMeanLineData = (apiData: any, cityColors: string[]) => {
-  // const timesteps = getTimestepsByTimeRange(apiData[0].timeRange, "day");
+  const timesteps = getTimestepsByTimeRange(apiData[0].timeRange, "day");
   const finalData: any[] = [];
   apiData.forEach((cityInfo: any, index: number) => {
-    const entryData = cityInfo.entryData;
-    const entryFinal = Object.keys(entryData).map((data) => {
-      return calculateMean(entryData[data].temperature2m)?.toFixed(1);
+    const entryData: any = {};
+    cityInfo.time.forEach((timestamp: Moment, index: number) => {
+      const month = moment(timestamp).format("DD-MM-yy");
+      if (!entryData[month]) {
+        entryData[month] = [];
+      }
+      const value = cityInfo.temperature2m[index];
+      if (!isNaN(value)) {
+        entryData[month].push(value);
+      }
     });
+    const entryFinal = Object.keys(entryData).map((data) => {
+      return calculateMean(entryData[data])?.toFixed(1);
+    });
+    const cityName = europeanCapitals.features.find(
+      (feature) =>
+        feature.properties.latitude?.toFixed(2) ===
+          cityInfo.coords.latitude.toFixed(2) &&
+        feature.properties.longitude?.toFixed(2) ===
+          cityInfo.coords.longitude.toFixed(2)
+    );
     finalData.push({
-      label: cityInfo?.city?.properties?.name ?? "Hello",
+      label: cityName?.properties?.name ?? "Hello",
       data: entryFinal,
       borderColor: cityColors[index],
       pointBackgroundColor: cityColors[index],
@@ -119,5 +161,5 @@ const getDailyMeanLineData = (apiData: any, cityColors: string[]) => {
       xAxisID: "xAxis",
     });
   });
-  return { datasets: finalData, labels: [] };
+  return { datasets: finalData, labels: timesteps };
 };

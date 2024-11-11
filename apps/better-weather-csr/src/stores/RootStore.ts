@@ -2,16 +2,9 @@
 
 import { europeanCapitals } from "@/helper/eu-countries-capitals.geo";
 import { WeatherParams } from "@/models/OpenMeteo";
-import { PresentationData } from "@/models/PresentationData";
-import { TableDataEntry } from "@/models/TableData";
-import {
-  fetchForecastData,
-  fetchHistoricalDataForMultipleCities,
-} from "@/service/OpenMeteoService";
-import { generateComboChartData } from "@/utils/DataFormatters";
 import { makeAutoObservable } from "mobx";
 import moment from "moment";
-import { NavigatorView, NavigatorViews } from "../constants/NavigatorViews";
+import { NavigatorViews } from "../constants/NavigatorViews";
 import { fetchCity } from "../helper/LocationHelper";
 
 type ControlHeaderSettings = {
@@ -32,14 +25,15 @@ export default class RootStore {
 
   private defaultBegin = moment(new Date()).format("YYYY-MM-DD");
   private defaultEnd = moment(new Date()).add(7, "days").format("YYYY-MM-DD");
-  private _activeTab: NavigatorView = NavigatorViews.dashboard;
+  private _activeTab: keyof typeof NavigatorViews = NavigatorViews.dashboard;
   private _controlHeaderState: ControlHeaderSettings | undefined = {
     beginDate: this.defaultBegin,
     endDate: this.defaultEnd,
   };
   private _selectedLocation: UserLocation | undefined = undefined;
 
-  setActiveTab(tab: NavigatorView) {
+  setActiveTab(tab: keyof typeof NavigatorViews) {
+    console.log("ACTIVETAB", tab);
     this._activeTab = tab;
   }
 
@@ -153,110 +147,25 @@ export default class RootStore {
   };
 
   openMeteoParams = () => {
-    if (
-      this.headerControls?.endDate &&
-      this.headerControls?.beginDate &&
-      this.headerControls?.endDate >= this.headerControls?.beginDate
-    ) {
-      return {
-        latitude: this._selectedLatitudes,
-        longitude: this._selectedLongitudes,
-        start_date: this.headerControls?.beginDate,
-        end_date: this.headerControls?.endDate,
-        hourly: [
-          WeatherParams.temperature_2m,
-          WeatherParams.precipitation,
-          WeatherParams.rain,
-          WeatherParams.snowfall,
-          WeatherParams.weather_code,
-          WeatherParams.cloud_cover,
-        ],
-        daily: [
-          WeatherParams.temperature_2m_mean,
-          WeatherParams.precipitation_sum,
-        ],
-        timezone: "auto",
-      };
-    }
-    return {};
-  };
-
-  private _chartColors: string[] = [];
-  private _presentationData: PresentationData[] = [];
-  private _tableRepresentation: TableDataEntry[] = [];
-  private _errorMessage: any = "";
-  private _isLoadingOverlayVisible = true;
-
-  get chartColors() {
-    return this._chartColors;
-  }
-
-  get presentationData() {
-    return this._presentationData;
-  }
-  get tableRepresentation() {
-    return this._tableRepresentation;
-  }
-  get errorMessage() {
-    return this._errorMessage;
-  }
-  get isLoadingOverlayVisible() {
-    return this._isLoadingOverlayVisible;
-  }
-
-  setIsLoadingSpinnerVisible(visibility: boolean) {
-    this._isLoadingOverlayVisible = visibility;
-  }
-
-  private _timesteps: string[] = [];
-  get timesteps() {
-    return this._timesteps;
-  }
-
-  setFrontendData = async (
-    tab: NavigatorView,
-    shouldRefetch: boolean = true,
-    forecast: boolean = false
-  ) => {
-    this._isLoadingOverlayVisible = true;
-    if (tab === "combo-chart" && shouldRefetch) {
-      const start = performance.now();
-      try {
-        let apiData;
-        const forecast =
-          this.openMeteoParams()?.end_date &&
-          moment(this.openMeteoParams()?.end_date) >= moment().startOf("day");
-        if (forecast) {
-          apiData = await fetchForecastData(this.openMeteoParams());
-        } else {
-          apiData = await fetchHistoricalDataForMultipleCities(
-            this.openMeteoParams()
-          );
-        }
-        const { weatherData, tableData, colors, timesteps } =
-          generateComboChartData(apiData, this.openMeteoParams());
-        console.log(tableData);
-        if (!weatherData) {
-          throw new Error("Network response was not ok");
-        }
-        this._chartColors = colors;
-        this._presentationData = weatherData;
-        this._tableRepresentation = tableData;
-        this._timesteps = timesteps;
-      } catch (error: any) {
-        this._errorMessage = error;
-      } finally {
-        const end = performance.now();
-        console.log(`Data fetching took ${end - start} ms`);
-      }
-    } else {
-      this._presentationData = this.presentationData.filter(
-        (entry) =>
-          this._selectedLatitudes.includes(entry.coords.latitude) &&
-          this._selectedLongitudes.includes(entry.coords.longitude)
-      );
-    }
-    this._isLoadingOverlayVisible = false;
+    return {
+      latitude: this._selectedLatitudes,
+      longitude: this._selectedLongitudes,
+      start_date: this.headerControls?.beginDate,
+      end_date: this.headerControls?.endDate,
+      hourly: [
+        WeatherParams.temperature_2m,
+        WeatherParams.precipitation,
+        WeatherParams.rain,
+        WeatherParams.snowfall,
+        WeatherParams.weather_code,
+        WeatherParams.cloud_cover,
+      ],
+      daily: [
+        WeatherParams.temperature_2m_mean,
+        WeatherParams.precipitation_sum,
+      ],
+      timezone: "auto",
+    };
   };
 }
 

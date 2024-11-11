@@ -1,7 +1,6 @@
 "use client";
 import { ControlHeader } from "@/components/ControlHeader";
 import ControlHeaderSSR from "@/components/ControlHeaderSSR";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
 import Sidebar from "@/components/Sidebar";
 import RootStore from "@/stores/RootStore";
 import "flowbite";
@@ -33,12 +32,7 @@ export default function RootLayout({
             <div className="flex w-full h-full items-center flex-grow p-5">
               <Sidebar />
               <div className="divider divider-horizontal"></div>
-              <div className="w-full h-full relative">
-                <>
-                  {children}
-                  <LoadingSpinner />
-                </>
-              </div>
+              <div className="w-full h-full relative">{children}</div>
             </div>
           </div>
         </rootStoreContext.Provider>

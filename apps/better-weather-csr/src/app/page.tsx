@@ -82,7 +82,7 @@ const DashboardContainer = observer(() => {
       } catch (error) {
         setError(error);
       } finally {
-        rootStore.setIsLoadingSpinnerVisible(false);
+        setIsLoading(false);
       }
     };
     if (
@@ -91,7 +91,7 @@ const DashboardContainer = observer(() => {
     ) {
       fetchData();
     } else {
-      rootStore.setIsLoadingSpinnerVisible(false);
+      setIsLoading(false);
     }
   }, [
     rootStore.selectedLocation,
@@ -114,7 +114,7 @@ const DashboardContainer = observer(() => {
           id="card-left-full"
           className="bg-white col-span-2 rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative p-3 overflow-hidden"
         >
-          <TableLegend store={rootStore} />
+          <TableLegend tableData={tableData} cityColors={colors} />
         </div>
         <div
           id="current-weather-card"
@@ -128,7 +128,12 @@ const DashboardContainer = observer(() => {
             id="card-bottom-right"
             className="bg-white rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative h-full p-3"
           >
-            <LineChart store={rootStore} field="minMax" />
+            <LineChart
+              chartData={chartData}
+              cityColors={colors}
+              location={rootStore.selectedLocation}
+              field="minMax"
+            />
           </div>
         </div>
       </div>

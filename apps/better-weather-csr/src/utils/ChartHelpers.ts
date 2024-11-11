@@ -3,15 +3,15 @@ import moment from "moment";
 export const chooseInterval = (timeRange: {
   beginDate: string;
   endDate: string;
-}): { interval: "day" | "month"; format: string } => {
+}) => {
   const startDate = moment(timeRange.beginDate);
   const endDate = moment(timeRange.endDate);
   const monthsBetween = Math.abs(endDate.diff(startDate, "months"));
   console.log(monthsBetween);
   if (monthsBetween < 1) {
-    return { interval: "day", format: "DD-MM-YYYY" };
+    return "day";
   } else {
-    return { interval: "month", format: "MMM-YYY" };
+    return "month";
   }
 };
 
@@ -54,31 +54,3 @@ export function calculateMean(values: number[]) {
   }
   return total / count;
 }
-
-// export const getDailyDataForFields = (apiData: any, fields: string[]) => {
-//   const timesteps = getTimestepsByTimeRange(apiData[0].timeRange, "day");
-//   const entryDataArray: any[] = [];
-//   apiData.forEach((cityInfo: any, index: number) => {
-//     const entryData: any = {};
-//     cityInfo.time.forEach((timestamp: Moment, index: number) => {
-//       const month = moment(timestamp).format("DD-MM-yy");
-//       if (!entryData[month]) {
-//         entryData[month] = [];
-//       }
-//       for (let i = 0; i < fields.length; i++) {
-//         const field = fields[i];
-//         if (cityInfo[field]) {
-//           const value = cityInfo[field][index];
-//           if (!entryData[month][field]) {
-//             entryData[month][field] = [];
-//           }
-//           if (!isNaN(value)) {
-//             entryData[month][field].push(value);
-//           }
-//         }
-//       }
-//     });
-//     entryDataArray.push(entryData);
-//   });
-//   return { dataArray: entryDataArray, timesteps };
-// };

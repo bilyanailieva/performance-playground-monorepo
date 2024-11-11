@@ -1,104 +1,49 @@
 "use client";
-
-import RootStore from "@/stores/RootStore";
-import { observer } from "mobx-react-lite";
 import { useReportWebVitals } from "next/web-vitals";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./TableLegend.module.scss";
+import {Button} from '@my-org/shared-components';
 
-const TableLegend = observer((props: { store: RootStore }) => {
-  const [selection, setSelection] = useState<any>(
-    props.store.tableRepresentation
-  );
+type TableLegendProps = {
+  tableData: any[];
+  cityColors: string[];
+  // onSelectionChange: (data: any[]) => void;
+};
 
+const TableLegend = (props: TableLegendProps) => {
+  const [selection, setSelection] = useState<any>(props.tableData);
   useReportWebVitals((metric: any) => {
     console.log(metric);
   });
-
   useEffect(() => {
-    setSelection(props.store.tableRepresentation);
-  }, [props.store.tableRepresentation]);
+    setSelection(props.tableData);
+  }, [props.tableData]);
 
-  // Memoize templates to avoid unnecessary re-renders
-  const tempTemplate = useMemo(
-    () => (entry: any, field: string) => `${entry[field].toFixed(1)}°C`,
-    []
-  );
+  const tempTemplate = (entry: any, field: string) => {
+    return `${entry[field].toFixed(1)}°C`;
+  };
 
-  const mmTemplate = useMemo(
-    () => (entry: any, field: string) => `${entry[field].toFixed(1)}mm`,
-    []
-  );
+  const mmTemplate = (entry: any, field: string) => {
+    return `${entry[field].toFixed(1)}mm`;
+  };
 
-  const colorTemplate = useMemo(
-    () => (color: string) =>
-      (
-        <span
-          className={styles.colorBox}
-          style={{ backgroundColor: color }}
-        ></span>
-      ),
-    []
-  );
+  const colorTemplate = (color: string) => {
+    return (
+      <span
+        className={styles.colorBox}
+        style={{ backgroundColor: color }}
+      ></span>
+    );
+  };
 
-  // Memoize the columns to prevent re-rendering unless the store changes
-  const columns = useMemo(
-    () => [
-      <Column
-        key="selection"
-        selectionMode="multiple"
-        headerStyle={{ width: "3rem" }}
-        className={styles.checkbox}
-      ></Column>,
-      <Column
-        key="color"
-        field="color"
-        body={(entry) => colorTemplate(entry.color)}
-      ></Column>,
-      <Column
-        key="cityName"
-        bodyStyle={{
-          maxWidth: "150px",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-        }}
-        field="cityName"
-        header="City"
-      ></Column>,
-      <Column
-        key="avgTemp"
-        field="avgTemp"
-        header="Temp Avg"
-        body={(entry) => tempTemplate(entry, "avgTemp")}
-      ></Column>,
-      <Column
-        key="maxTemp"
-        field="maxTemp"
-        header="maxTemp"
-        body={(entry) => tempTemplate(entry, "maxTemp")}
-      ></Column>,
-      <Column
-        key="minTemp"
-        field="minTemp"
-        header="minTemp"
-        body={(entry) => tempTemplate(entry, "minTemp")}
-      ></Column>,
-      <Column
-        key="presipitationSum"
-        field="presipitationSum"
-        header="Sum Rain"
-        body={(entry) => mmTemplate(entry, "presipitationSum")}
-      ></Column>,
-    ],
-    [tempTemplate, mmTemplate, colorTemplate] // dependencies to ensure updates only when necessary
-  );
-
-  return (
+  return props?.tableData?.length ? (
     <div className="relative w-full h-full overflow-hidden">
+      {/* Following line is just for testing */}
+      <Button label={'Test'} onClick={() => {}}/>
       <DataTable
-        value={props.store.tableRepresentation}
+        value={props.tableData}
         columnResizeMode="expand"
         resizableColumns
         className="w-full h-full top-0 left-0 absolute overflow-y-auto"
@@ -106,13 +51,53 @@ const TableLegend = observer((props: { store: RootStore }) => {
         selection={selection}
         onSelectionChange={(e) => {
           setSelection(e.value);
+          // props.onSelectionChange(e.value);
         }}
         dataKey="id"
       >
-        {columns}
+        <Column
+          selectionMode="multiple"
+          headerStyle={{ width: "3rem" }}
+          className={styles.checkbox}
+        ></Column>
+        <Column
+          field="color"
+          body={(entry) => colorTemplate(entry.color)}
+        ></Column>
+        <Column
+          bodyStyle={{
+            maxWidth: "150px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+          field="cityName"
+          header="City"
+        ></Column>
+        <Column
+          field="avgTemp"
+          header="Temp Avg"
+          body={(entry) => tempTemplate(entry, "avgTemp")}
+        ></Column>
+        <Column
+          field="maxTemp"
+          header="maxTemp"
+          body={(entry) => tempTemplate(entry, "maxTemp")}
+        ></Column>
+        <Column
+          field="minTemp"
+          header="minTemp"
+          body={(entry) => tempTemplate(entry, "minTemp")}
+        ></Column>
+        <Column
+          field="presipitationSum"
+          header="Sum Rain"
+          body={(entry) => mmTemplate(entry, "presipitationSum")}
+        ></Column>
       </DataTable>
     </div>
+  ) : (
+    <></>
   );
-});
+};
 
 export default TableLegend;

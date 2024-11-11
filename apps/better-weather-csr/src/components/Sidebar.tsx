@@ -1,7 +1,7 @@
 "use client";
 
 import { rootStoreContext } from "@/app/layout";
-import { NavigatorView, NavigatorViews } from "@/constants/NavigatorViews";
+import { NavigatorViews } from "@/constants/NavigatorViews";
 import {
   IconChartBar,
   IconChartBarPopular,
@@ -9,62 +9,64 @@ import {
   IconMap,
 } from "@tabler/icons-react";
 import { observer } from "mobx-react-lite";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Menu } from "primereact/menu";
 import { MenuItem } from "primereact/menuitem";
 import { Tooltip } from "primereact/tooltip";
-import { useContext } from "react";
+import { useCallback, useContext } from "react";
 
 const itemRenderer = (
   item: MenuItem,
-  activeTab: NavigatorView,
+  activeTab: keyof typeof NavigatorViews,
   itemPath: string,
-  updateActiveTab?: (tab: NavigatorView, path: string) => void
+  updateActiveTab?: (activeTab: keyof typeof NavigatorViews) => void
 ) => (
   <div
     className={`p-menuitem-content rounded-md ${
       item.id === activeTab ? "bg-blue-400" : ""
     }`}
   >
-    <button
+    <Link
       className="flex align-items-center p-menuitem-link"
       data-pr-tooltip={item.label}
       data-pr-position="right"
-      type="button"
-      onClick={() => {
-        updateActiveTab?.(item.id as NavigatorView, itemPath);
-      }}
+      href={`/${itemPath}`}
+      onClick={() => updateActiveTab?.(activeTab)}
     >
       <span>{item.icon}</span>
-    </button>
+    </Link>
   </div>
 );
 
 export const Sidebar = observer(() => {
   const rootStore = useContext(rootStoreContext);
   const { activeTab } = rootStore;
-  const router = useRouter();
 
-  const onMenuItemClick = (tab: NavigatorView, path: string) => {
-    rootStore.setActiveTab(tab);
-    router.push(path);
-    rootStore.setFrontendData(tab);
-  };
+  const onMenuItemClick = useCallback((e: any) => {
+    rootStore.setActiveTab(e);
+  }, []);
 
   const sidebarItems: MenuItem[] = [
     {
       id: NavigatorViews.dashboard,
       icon: <IconLayoutDashboard className="w-6" stroke={2} />,
       label: "My Forecast",
-      template: (item) => itemRenderer(item, activeTab, "/", onMenuItemClick),
+      command: (e) => onMenuItemClick(e),
+      template: (item) =>
+        itemRenderer(item, activeTab, "", () =>
+          rootStore.setActiveTab(NavigatorViews.dashboard)
+        ),
     },
     {
       id: NavigatorViews.map,
       icon: <IconMap stroke={2} />,
       label: "Map overview CSR",
       disabled: true,
+      command: (e) => onMenuItemClick(e),
       template: (item) =>
-        itemRenderer(item, activeTab, NavigatorViews.map, onMenuItemClick),
+        itemRenderer(item, activeTab, NavigatorViews.map, () =>
+          rootStore.setActiveTab(NavigatorViews.map)
+        ),
     },
     {
       separator: true,
@@ -73,12 +75,10 @@ export const Sidebar = observer(() => {
       id: NavigatorViews.comboChart,
       icon: <IconChartBar stroke={2} />,
       label: "Combo Chart CSR",
+      command: onMenuItemClick,
       template: (item) =>
-        itemRenderer(
-          item,
-          activeTab,
-          NavigatorViews.comboChart,
-          onMenuItemClick
+        itemRenderer(item, activeTab, NavigatorViews.comboChart, () =>
+          rootStore.setActiveTab("comboChart")
         ),
     },
     {

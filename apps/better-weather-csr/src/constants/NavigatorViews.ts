@@ -5,6 +5,3 @@ export const NavigatorViews = {
   comboChart: "combo-chart",
   advancedChartSSR: "advancedChartSSR",
 } as const;
-
-export type NavigatorView =
-  (typeof NavigatorViews)[keyof typeof NavigatorViews];

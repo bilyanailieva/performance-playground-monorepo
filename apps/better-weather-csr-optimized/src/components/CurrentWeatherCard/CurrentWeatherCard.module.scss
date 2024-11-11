@@ -1,0 +1,23 @@
+.weatherCard {
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: space-evenly;
+    align-items: center;
+
+  h2 {
+    margin: 0 0 10px;
+    font-size: 1.2em;
+  }
+
+  img {
+    width: 100px;
+    height: 100px;
+  }
+  p {
+    margin: 5px 0;
+  }
+
+}
