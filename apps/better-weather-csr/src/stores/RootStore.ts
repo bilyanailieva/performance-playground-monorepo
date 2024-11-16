@@ -3,13 +3,13 @@
 import { europeanCapitals } from "@/helper/eu-countries-capitals.geo";
 import { WeatherParams } from "@/models/OpenMeteo";
 import { makeAutoObservable } from "mobx";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import { NavigatorViews } from "../constants/NavigatorViews";
 import { fetchCity } from "../helper/LocationHelper";
 
 type ControlHeaderSettings = {
-  beginDate?: string;
-  endDate?: string;
+  beginDate: moment.Moment;
+  endDate: moment.Moment;
 };
 
 export type UserLocation = {
@@ -23,10 +23,10 @@ export default class RootStore {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
-  private defaultBegin = moment(new Date()).format("YYYY-MM-DD");
-  private defaultEnd = moment(new Date()).add(7, "days").format("YYYY-MM-DD");
+  private defaultBegin = moment(new Date());
+  private defaultEnd = moment(new Date()).add(7, "days");
   private _activeTab: keyof typeof NavigatorViews = NavigatorViews.dashboard;
-  private _controlHeaderState: ControlHeaderSettings | undefined = {
+  private _controlHeaderState: ControlHeaderSettings = {
     beginDate: this.defaultBegin,
     endDate: this.defaultEnd,
   };
@@ -73,6 +73,7 @@ export default class RootStore {
               Intl.DateTimeFormat().resolvedOptions().timeZone;
             const { latitude, longitude } = position.coords;
             const city = await fetchCity(latitude, longitude);
+            console.log(city);
             this._selectedLocation = {
               name: city.display_name,
               id: city.osm_id,

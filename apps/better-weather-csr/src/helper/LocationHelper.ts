@@ -28,7 +28,7 @@ export const getLocation = () => {
             const { latitude, longitude } = position.coords;
             const city = await fetchCity(latitude, longitude);
             resolve({
-              name: city.display_name,
+              name: city.address.city,
               id: city.osm_id,
               location: {
                 longitute: longitude,

@@ -3,7 +3,6 @@ import { ControlHeader } from "@/components/ControlHeader";
 import ControlHeaderSSR from "@/components/ControlHeaderSSR";
 import Sidebar from "@/components/Sidebar";
 import RootStore from "@/stores/RootStore";
-import "flowbite";
 import { usePathname } from "next/navigation";
 import "primereact/resources/themes/lara-light-blue/theme.css";
 import { createContext } from "react";

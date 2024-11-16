@@ -4,7 +4,7 @@ import { europeanCapitals } from "@/helper/eu-countries-capitals.geo";
 import { IconSearch } from "@tabler/icons-react";
 import { observer } from "mobx-react-lite";
 import moment from "moment";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { MultiSelect } from "primereact/multiselect";
@@ -12,62 +12,31 @@ import { Toolbar } from "primereact/toolbar";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { getLocationByName } from "../helper/LocationHelper";
 import { DateBox } from "./Calendar";
+import { momentDateToString } from "@/utils/FormatDate";
 
 export const ControlHeader = observer(() => {
   const rootStore = useContext(rootStoreContext);
   const [val, setVal] = useState(rootStore.selectedLocation?.name ?? "");
   const [selectedLocations, setSelectedLocations] = useState<any[]>([]);
-  const [options, setOptions] = useState(europeanCapitals.features);
-
-  const searchParams = useSearchParams();
   const pathName = usePathname();
-  const router = useRouter();
-  const params = new URLSearchParams(searchParams.toString());
 
-  // useEffect(() => {
-  //   if (rootStore.activeTab !== "dashboard") {
-  //     rootStore.setHeaderControls({
-  //       beginDate: moment().subtract(7, "days").format("YYYY-MM-DD"),
-  //       endDate: moment().subtract(1, "day").format("YYYY-MM-DD"),
-  //     });
-  //   } else {
-  //     rootStore.setHeaderControls({
-  //       endDate: moment().add(7, "days").format("YYYY-MM-DD"),
-  //       beginDate: moment().startOf("day").format("YYYY-MM-DD"),
-  //     });
-  //   }
-  //   console.log(selectedLocations, rootStore.selectedLocation);
-  //   if (!selectedLocations.length && rootStore.selectedLocation) {
-  //     const location = rootStore.selectedLocation;
-  //     const info = {
-  //       properties: {
-  //         iso_a3: "myLocation",
-  //         latitude: rootStore.selectedLocation.location?.latitude,
-  //         longitude: rootStore.selectedLocation.location?.longitute,
-  //         capital: rootStore.selectedLocation.name,
-  //         timezone: rootStore.selectedLocation.location?.timezone,
-  //       },
-  //     };
-  //     setOptions([info as Feature, ...europeanCapitals.features]);
-  //     setSelectedLocations([info.properties.iso_a3]);
-  //     rootStore.setSelectedCitiesInfo({
-  //       iso_a3: location.id?.toString() ?? useId(),
-  //       latitude: location.location?.latitude,
-  //       longitude: location.location?.longitute,
-  //       capital: location.name,
-  //       timezone: location.location?.timezone,
-  //     });
-  //     console.log("here");
-  //   }
-  // }, [rootStore.activeTab]);
+  useEffect(() => {
+    const existingOption = europeanCapitals.features.find(
+      (feature: any) => feature.properties.capital === rootStore.selectedLocation?.name);
+    if (
+      rootStore.selectedLocation?.name &&
+      existingOption
+    ) {
+      setSelectedLocations([existingOption.properties.iso_a3])
+    }
+  }, [pathName]);
 
   useEffect(() => {
     setVal(rootStore.selectedLocation?.name ?? "");
   }, [rootStore.selectedLocation?.name]);
 
   const onDateChange = (e: any, field: "beginDate" | "endDate") => {
-    const formattedDate = moment(e.value).format("YYYY-MM-DD");
-    rootStore.setHeaderControls({ [field]: formattedDate });
+    rootStore.setHeaderControls({ [field]: moment(e.value) });
   };
 
   const onInputChange = (e: any) => {
@@ -75,10 +44,13 @@ export const ControlHeader = observer(() => {
     setVal(newValue);
   };
 
+  const handleInputClick = () => {
+    setVal("");
+  };
+
   const handleSearch = async (e: any) => {
     try {
       const location = await getLocationByName(val);
-      console.log(location);
       if (location) {
         setVal(location.name);
         rootStore.setLocation(location);
@@ -88,14 +60,26 @@ export const ControlHeader = observer(() => {
     }
   };
 
-  const handleInputClick = () => {
-    setVal("");
-  };
-
   const handleSelection = useCallback((e: any) => {
     rootStore.selectedCities(e.value);
     setSelectedLocations(e.value);
   }, []);
+
+  const handleBtnClick = () => {
+    const now = moment(new Date());
+    if (
+      rootStore?.headerControls?.endDate < rootStore?.headerControls?.beginDate
+    ) {
+      return;
+    } else if (
+      rootStore.headerControls.endDate >= now ||
+      rootStore.headerControls.endDate >= now
+    ) {
+      console.log("prepare forecast presentation data here ");
+    } else {
+      console.log("prepare historical presentation data here ");
+    }
+  };
 
   return (
     <div className="card">
@@ -122,7 +106,7 @@ export const ControlHeader = observer(() => {
                 <MultiSelect
                   value={selectedLocations}
                   onChange={handleSelection}
-                  options={options}
+                  options={europeanCapitals.features}
                   optionLabel="properties.capital"
                   optionValue="properties.iso_a3"
                   placeholder="Select Cities"
@@ -132,13 +116,18 @@ export const ControlHeader = observer(() => {
               )}
             </div>
             <DateBox
-              defaultValue={rootStore?.headerControls?.beginDate ?? ""}
+              defaultValue={momentDateToString(
+                rootStore.headerControls.beginDate
+              )}
               onChange={(e) => onDateChange(e, "beginDate")}
             />
             <DateBox
-              defaultValue={rootStore.headerControls?.endDate ?? ""}
+              defaultValue={momentDateToString(
+                rootStore.headerControls.endDate
+              )}
               onChange={(e) => onDateChange(e, "endDate")}
             />
+            <Button onClick={handleBtnClick}>Refresh</Button>
           </div>
         }
       ></Toolbar>
