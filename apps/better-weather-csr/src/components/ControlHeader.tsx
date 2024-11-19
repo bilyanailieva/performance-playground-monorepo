@@ -9,18 +9,20 @@ import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { MultiSelect } from "primereact/multiselect";
 import { Toolbar } from "primereact/toolbar";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { getLocationByName } from "../helper/LocationHelper";
 import { DateBox } from "./Calendar";
 import { momentDateToString } from "@/utils/FormatDate";
 import { ToggleButton } from "primereact/togglebutton";
 import { InputSwitch } from "primereact/inputswitch";
+import { Toast } from "primereact/toast";
 
 export const ControlHeader = observer(() => {
   const rootStore = useContext(rootStoreContext);
   const [val, setVal] = useState(rootStore.selectedLocation?.name ?? "");
   const [selectedLocations, setSelectedLocations] = useState<any[]>([]);
   const pathName = usePathname();
+  const toast = useRef<Toast>(null);
 
   useEffect(() => {
     const existingOption = europeanCapitals.features.find(
@@ -71,7 +73,12 @@ export const ControlHeader = observer(() => {
     if (
       rootStore?.headerControls?.endDate < rootStore?.headerControls?.beginDate
     ) {
-      return;
+      if (!toast.current) return;
+      toast?.current.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Start date should be before end date!",
+      });
     } else if (
       rootStore.headerControls.endDate >= now ||
       rootStore.headerControls.endDate >= now
@@ -82,10 +89,9 @@ export const ControlHeader = observer(() => {
     }
   };
 
-  console.log(rootStore.headerControls)
-
   return (
     <div className="card">
+      <Toast ref={toast} />
       <Toolbar
         center={
           <div className="flex flex-wrap align-items-center gap-3">
@@ -146,7 +152,7 @@ export const ControlHeader = observer(() => {
                   console.log(e);
                   const viewMode = e.value ? "daily" : "hourly";
                   rootStore.setHeaderControls({
-                    viewMode
+                    viewMode,
                   });
                 }}
                 className="relative block outline-none focus:ring-2 focus:ring-blue-400"
