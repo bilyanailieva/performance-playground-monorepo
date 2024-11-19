@@ -17,7 +17,6 @@ import { Tooltip } from "primereact/tooltip";
 import { useCallback, useContext } from "react";
 
 const itemRenderer = (item: MenuItem, options: any, activeTab: string) => {
-  console.log(options);
   return (
     <div
       className={`p-menuitem-content rounded-md p-1 my-3 ${

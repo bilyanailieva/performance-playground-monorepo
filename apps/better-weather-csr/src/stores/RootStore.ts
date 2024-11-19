@@ -3,13 +3,14 @@
 import { europeanCapitals } from "@/helper/eu-countries-capitals.geo";
 import { WeatherParams } from "@/models/OpenMeteo";
 import { makeAutoObservable } from "mobx";
-import moment, { Moment } from "moment";
+import moment from "moment";
 import { NavigatorViews } from "../constants/NavigatorViews";
 import { fetchCity } from "../helper/LocationHelper";
 
 type ControlHeaderSettings = {
   beginDate: moment.Moment;
   endDate: moment.Moment;
+  viewMode: 'daily' | 'hourly'
 };
 
 export type UserLocation = {
@@ -29,6 +30,7 @@ export default class RootStore {
   private _controlHeaderState: ControlHeaderSettings = {
     beginDate: this.defaultBegin,
     endDate: this.defaultEnd,
+    viewMode: 'daily'
   };
   private _selectedLocation: UserLocation | undefined = undefined;
 
@@ -42,6 +44,7 @@ export default class RootStore {
   }
 
   setHeaderControls(updates: Partial<ControlHeaderSettings>) {
+    console.log(updates);
     this._controlHeaderState = {
       ...this._controlHeaderState,
       ...updates,

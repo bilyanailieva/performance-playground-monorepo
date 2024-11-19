@@ -13,6 +13,8 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { getLocationByName } from "../helper/LocationHelper";
 import { DateBox } from "./Calendar";
 import { momentDateToString } from "@/utils/FormatDate";
+import { ToggleButton } from "primereact/togglebutton";
+import { InputSwitch } from "primereact/inputswitch";
 
 export const ControlHeader = observer(() => {
   const rootStore = useContext(rootStoreContext);
@@ -22,12 +24,11 @@ export const ControlHeader = observer(() => {
 
   useEffect(() => {
     const existingOption = europeanCapitals.features.find(
-      (feature: any) => feature.properties.capital === rootStore.selectedLocation?.name);
-    if (
-      rootStore.selectedLocation?.name &&
-      existingOption
-    ) {
-      setSelectedLocations([existingOption.properties.iso_a3])
+      (feature: any) =>
+        feature.properties.capital === rootStore.selectedLocation?.name
+    );
+    if (rootStore.selectedLocation?.name && existingOption) {
+      setSelectedLocations([existingOption.properties.iso_a3]);
     }
   }, [pathName]);
 
@@ -81,6 +82,8 @@ export const ControlHeader = observer(() => {
     }
   };
 
+  console.log(rootStore.headerControls)
+
   return (
     <div className="card">
       <Toolbar
@@ -127,6 +130,34 @@ export const ControlHeader = observer(() => {
               )}
               onChange={(e) => onDateChange(e, "endDate")}
             />
+            <div className="flex items-center gap-4">
+              {/* Left Label */}
+              <label
+                className={`text-sm ${rootStore.headerControls.viewMode === "hourly" ? "font-bold text-blue-600" : "text-gray-500"}`}
+              >
+                Hourly
+              </label>
+              {/* Switch */}
+              <InputSwitch
+                checked={!!(rootStore.headerControls.viewMode === "daily")}
+                // trueValue={"daily"}
+                // falseValue={"hourly"}
+                onChange={(e) => {
+                  console.log(e);
+                  const viewMode = e.value ? "daily" : "hourly";
+                  rootStore.setHeaderControls({
+                    viewMode
+                  });
+                }}
+                className="relative block outline-none focus:ring-2 focus:ring-blue-400"
+              />
+              {/* Right Label */}
+              <label
+                className={`text-sm ${rootStore.headerControls.viewMode === "daily" ? "font-bold text-blue-600" : "text-gray-500"}`}
+              >
+                Daily
+              </label>
+            </div>{" "}
             <Button onClick={handleBtnClick}>Refresh</Button>
           </div>
         }
