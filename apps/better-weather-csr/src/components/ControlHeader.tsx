@@ -87,7 +87,7 @@ export const ControlHeader = observer(() => {
         center={
           <div className="flex flex-wrap align-items-center gap-3">
             <div className="card flex justify-content-center">
-              {pathName === "/" ? (
+              {pathName === "/dashboard" ? (
                 <div className="p-inputgroup">
                   <InputText
                     value={val}

@@ -4,6 +4,7 @@ import { fetchWeatherApi } from "openmeteo";
 import RootStore, { UserLocation } from "@/stores/RootStore";
 import { WeatherApiResponse } from "@openmeteo/sdk/weather-api-response";
 import axios from "axios";
+import { momentDateToString } from "@/utils/FormatDate";
 
 export enum WeatherParams {
   "temperature_2m" = "temperature_2m",
@@ -254,8 +255,8 @@ export const getForecastDataParams = async (rootStore: RootStore) => {
   return {
     latitude: [userLocation?.location?.latitude],
     longitude: [userLocation?.location?.longitute],
-    start_date: rootStore.headerControls?.beginDate,
-    end_date: rootStore.headerControls?.endDate,
+    start_date: momentDateToString(rootStore.headerControls?.beginDate),
+    end_date: momentDateToString(rootStore.headerControls?.endDate),
     hourly: [
       WeatherParams.temperature_2m,
       WeatherParams.precipitation,

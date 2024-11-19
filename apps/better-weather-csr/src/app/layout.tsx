@@ -16,18 +16,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const pathName = usePathname();
   return (
     <html lang="en">
       <body>
         <rootStoreContext.Provider value={rootStore}>
           <div className="fixed flex flex-col top-0 left-0 h-screen w-screen">
-            {pathName.includes("combo-chart-ssr") ? (
-              <ControlHeaderSSR />
-            ) : (
               <ControlHeader />
-            )}
-
             <div className="flex w-full h-full items-center flex-grow p-5">
               <Sidebar />
               <div className="divider divider-horizontal"></div>
