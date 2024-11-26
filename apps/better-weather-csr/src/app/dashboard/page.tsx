@@ -8,12 +8,14 @@ import { getLocation } from "@/helper/LocationHelper";
 import { generateComboChartData } from "@/utils/DataFormatters";
 import moment from "moment";
 import {
+  WeatherParams,
   fetchForecastData,
   fetchHistoricalDataForMultipleCities,
   getForecastDataParams,
 } from "../../service/OpenMeteoService";
 import { rootStoreContext } from "./../layout";
 import CurrentWeatherCard from "@/components/CurrentWeatherCard/CurrentWeatherCard";
+import { momentDateToString } from "@/utils/FormatDate";
 
 const DashboardContainer = observer(() => {
   const rootStore = useContext(rootStoreContext);
@@ -27,17 +29,37 @@ const DashboardContainer = observer(() => {
   useEffect(() => {
     const fetchLocation = async () => {
       try {
+        let userLocation = undefined;
         const cachedLocation = localStorage.getItem("location");
         if (cachedLocation) {
           console.log(JSON.parse(cachedLocation));
           rootStore.setLocation(JSON.parse(cachedLocation));
+          userLocation= JSON.parse(cachedLocation);
         } else {
           const location = await getLocation();
           if (location) {
             localStorage.setItem("location", JSON.stringify(location));
             rootStore.setLocation(location);
+            userLocation = location;
           }
         }
+        if(!userLocation) return;
+        const data = await fetchForecastData({
+          start_date: momentDateToString(rootStore.headerControls.beginDate),
+          end_date: momentDateToString(rootStore.headerControls.endDate),
+          latitude: [userLocation?.location?.latitude],
+          longitude: [userLocation?.location?.latitude],
+          timezone: rootStore.selectedLocation?.location?.timezone ?? 'auto',
+          hourly: [
+            WeatherParams.temperature_2m,
+            WeatherParams.precipitation,
+            WeatherParams.rain,
+            WeatherParams.snowfall,
+            WeatherParams.weather_code,
+            WeatherParams.cloud_cover,
+          ]
+        });
+        rootStore.setApiData(data);
       } catch (error) {
         console.error("Error fetching location:", error);
       } finally {
@@ -49,54 +71,27 @@ const DashboardContainer = observer(() => {
   }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const params = await getForecastDataParams(rootStore);
-        console.log(params);
-        if (!params) return;
-        let apiData = undefined;
-        const now = moment().startOf("day");
-        if (
-          moment(params.end_date) >= now ||
-          moment(params.start_date) >= now
-        ) {
-          apiData = await fetchForecastData(params);
-        } else {
-          apiData = await fetchHistoricalDataForMultipleCities(params);
-        }
-        if (apiData) {
-          const { weatherData, tableData, colors } = generateComboChartData(
-            apiData,
-            params,
-            rootStore.selectedLocation
-          );
-          console.log(tableData);
-          console.log(weatherData);
-          if (!weatherData) {
-            throw new Error("Network response was not ok");
-          }
-          setColors(colors);
-          setChartData(weatherData);
-          setTableData(tableData);
-        }
-      } catch (error) {
-        setError(error);
-      } finally {
-        setIsLoading(false);
+    if (rootStore?.apiData?.length) {
+      const { weatherData, tableData, colors } = generateComboChartData(
+        rootStore.apiData,
+        rootStore.openMeteoParams(),
+        rootStore.selectedLocation
+      );
+      console.log(tableData);
+      console.log(weatherData);
+      if (!weatherData) {
+        throw new Error("Network response was not ok");
       }
-    };
-    if (
-      rootStore.headerControls?.beginDate &&
-      rootStore.headerControls?.endDate
-    ) {
-      fetchData();
+      setColors(colors);
+      setChartData(weatherData);
+      setTableData(tableData);
     } else {
-      setIsLoading(false);
+      setColors([]);
+      setChartData([]);
+      setTableData([]);
     }
   }, [
-    rootStore.selectedLocation,
-    rootStore.headerControls?.beginDate,
-    rootStore.headerControls?.endDate,
+    rootStore.apiData
   ]);
 
   if (isLoading) {

@@ -19,14 +19,14 @@ export enum WeatherParams {
 }
 
 type OpenMeteoParams = {
-  latitude?: number;
-  longitude?: number;
-  start_date?: string;
-  end_date?: string;
+  latitude: number[];
+  longitude: number[];
+  start_date: string;
+  end_date: string;
+  timezone: string;
   hourly?: WeatherParams[];
   daily?: WeatherParams[];
   current?: WeatherParams[];
-  timezone?: string;
 };
 
 export type CurrentWeatherData = {
@@ -118,59 +118,52 @@ export const fetchHistoricalDataForCity = async (params: OpenMeteoParams) => {
   return { weatherData, tableData };
 };
 
-export const fetchHistoricalDataForMultipleCities = async (params: any) => {
-  if (
-    !params.longitude.length ||
-    !params.latitude.length ||
-    !params.start_date ||
-    !params.end_date
-  ) {
-    return [];
+export const fetchHistoricalDataForMultipleCities = async (
+  params: OpenMeteoParams
+) => {
+  try {
+    const responses = await axios.get("http://localhost:8080/history", {
+      params: params,
+      paramsSerializer: (params) => {
+        // Custom serializer to correctly handle array parameters
+        const qs = Object.keys(params)
+          .map((key) => {
+            const value = params[key];
+            return Array.isArray(value)
+              ? value.map((val) => `${key}=${val}`).join("&")
+              : `${key}=${value}`;
+          })
+          .join("&");
+        return qs;
+      },
+    });
+    return responses.data;
+  } catch (e) {
+    console.error("Error during fetching historical data: ", e);
   }
-  console.log("here");
-  const responses = await axios.get("http://localhost:8080/history", {
-    params: params,
-    paramsSerializer: (params) => {
-      // Custom serializer to correctly handle array parameters
-      const qs = Object.keys(params)
-        .map((key) => {
-          const value = params[key];
-          return Array.isArray(value)
-            ? value.map((val) => `${key}=${val}`).join("&")
-            : `${key}=${value}`;
-        })
-        .join("&");
-      return qs;
-    },
-  });
-  return responses.data;
 };
 
-export const fetchForecastData = async (params: any) => {
-  if (
-    !params.longitude.length ||
-    !params.latitude.length ||
-    !params.start_date ||
-    !params.end_date
-  ) {
-    return [];
+export const fetchForecastData = async (params: OpenMeteoParams) => {
+  try {
+    const responses = await axios.get("http://localhost:8080/forecast", {
+      params: params,
+      paramsSerializer: (params) => {
+        // Custom serializer to correctly handle array parameters
+        const qs = Object.keys(params)
+          .map((key) => {
+            const value = params[key];
+            return Array.isArray(value)
+              ? value.map((val) => `${key}=${val}`).join("&")
+              : `${key}=${value}`;
+          })
+          .join("&");
+        return qs;
+      },
+    });
+    return responses.data;
+  } catch (e) {
+    console.error("Error during fetching!, ", e);
   }
-  const responses = await axios.get("http://localhost:8080/forecast", {
-    params: params,
-    paramsSerializer: (params) => {
-      // Custom serializer to correctly handle array parameters
-      const qs = Object.keys(params)
-        .map((key) => {
-          const value = params[key];
-          return Array.isArray(value)
-            ? value.map((val) => `${key}=${val}`).join("&")
-            : `${key}=${value}`;
-        })
-        .join("&");
-      return qs;
-    },
-  });
-  return responses.data;
 };
 
 export const fetchCurrentDataForCity = async (

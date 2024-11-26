@@ -171,6 +171,16 @@ export default class RootStore {
       timezone: "auto",
     };
   };
+
+  private _apiData: any = [];
+
+  get apiData() {
+    return this._apiData;
+  }
+
+  public setApiData(data: any) {
+    this._apiData = data;
+  }
 }
 
 type CityInfo = {

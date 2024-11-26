@@ -13,9 +13,9 @@ import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { getLocationByName } from "../helper/LocationHelper";
 import { DateBox } from "./Calendar";
 import { momentDateToString } from "@/utils/FormatDate";
-import { ToggleButton } from "primereact/togglebutton";
 import { InputSwitch } from "primereact/inputswitch";
 import { Toast } from "primereact/toast";
+import { WeatherParams, fetchForecastData, fetchHistoricalDataForMultipleCities } from "@/service/OpenMeteoService";
 
 export const ControlHeader = observer(() => {
   const rootStore = useContext(rootStoreContext);
@@ -68,7 +68,7 @@ export const ControlHeader = observer(() => {
     setSelectedLocations(e.value);
   }, []);
 
-  const handleBtnClick = () => {
+  const handleBtnClick = async () => {
     const now = moment(new Date());
     if (
       rootStore?.headerControls?.endDate < rootStore?.headerControls?.beginDate
@@ -84,8 +84,48 @@ export const ControlHeader = observer(() => {
       rootStore.headerControls.endDate >= now
     ) {
       console.log("prepare forecast presentation data here ");
+      try {
+      const data = await fetchForecastData({
+        start_date: momentDateToString(rootStore.headerControls.beginDate),
+        end_date: momentDateToString(rootStore.headerControls.endDate),
+        latitude: rootStore.latutudes,
+        longitude: rootStore.longitudes,
+        timezone: rootStore.selectedLocation?.location?.timezone ?? 'auto',
+        hourly: [
+          WeatherParams.temperature_2m,
+          WeatherParams.precipitation,
+          WeatherParams.rain,
+          WeatherParams.snowfall,
+          WeatherParams.weather_code,
+          WeatherParams.cloud_cover,
+        ]
+      });
+      rootStore.setApiData(data);
+    } catch (e) {
+      console.error('Error!', e);
+    }
     } else {
       console.log("prepare historical presentation data here ");
+      try {
+        const data = await fetchHistoricalDataForMultipleCities({
+          start_date: momentDateToString(rootStore.headerControls.beginDate),
+          end_date: momentDateToString(rootStore.headerControls.endDate),
+          latitude: rootStore.latutudes,
+          longitude: rootStore.longitudes,
+          timezone: rootStore.selectedLocation?.location?.timezone ?? 'auto',
+          hourly: [
+            WeatherParams.temperature_2m,
+            WeatherParams.precipitation,
+            WeatherParams.rain,
+            WeatherParams.snowfall,
+            WeatherParams.weather_code,
+            WeatherParams.cloud_cover,
+          ]
+        });
+        rootStore.setApiData(data);
+      } catch (e) {
+        console.error('Error!', e);
+      }
     }
   };
 

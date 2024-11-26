@@ -39,9 +39,9 @@ export const generateCloudCoverageData = (data: any, cityColors: string[]) => {
     const cityName: any | undefined = europeanCapitals.features.find(
       (feature) =>
         feature.properties.latitude?.toFixed(2) ===
-          dataEntry.coords.latitude.toFixed(2) &&
+          dataEntry.coords.latitude?.toFixed(2) &&
         feature.properties.longitude?.toFixed(2) ===
-          dataEntry.coords.longitude.toFixed(2)
+          dataEntry.coords.longitude?.toFixed(2)
     );
     return {
       label: cityName?.properties?.name,
@@ -74,7 +74,7 @@ const calculateTimeOfDay = (timeEntry: Moment) => {
 };
 
 function convertHex(hexCode: string, opacity = 1) {
-  var hex = hexCode.replace("#", "");
+  var hex = hexCode?.replace("#", "");
 
   if (hex.length === 3) {
     hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];

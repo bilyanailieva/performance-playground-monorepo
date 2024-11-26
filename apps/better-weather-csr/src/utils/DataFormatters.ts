@@ -2,6 +2,7 @@ import { europeanCapitals } from "@/helper/eu-countries-capitals.geo";
 import { UserLocation } from "@/stores/RootStore";
 import { calculateMean } from "./ChartHelpers";
 import { generateColors } from "./ColorGenerator";
+import { momentDateToString } from "./FormatDate";
 
 export const generateComboChartData = (
   apiData: any[],
@@ -23,8 +24,8 @@ export const generateComboChartData = (
 
     const weatherData: any = {
       timeRange: {
-        beginDate: queryParams.start_date,
-        endDate: queryParams.end_date,
+        beginDate: momentDateToString(queryParams.start_date),
+        endDate: momentDateToString(queryParams.end_date),
       },
       coords: {
         latitude: queryParams.latitude[index],
@@ -39,9 +40,9 @@ export const generateComboChartData = (
     const city: any = europeanCapitals.features.find(
       (feature) =>
         feature.properties.latitude?.toFixed(2) ===
-          weatherData.coords.latitude.toFixed(2) &&
+          weatherData.coords.latitude?.toFixed(2) &&
         feature.properties.longitude?.toFixed(2) ===
-          weatherData.coords.longitude.toFixed(2)
+          weatherData.coords.longitude?.toFixed(2)
     );
 
     const tableEntry: any = {

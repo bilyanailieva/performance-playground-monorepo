@@ -26,84 +26,44 @@ const ComboChartPage = observer(() => {
   const rootStore = useContext(rootStoreContext);
   // const { selectedLocation, headerControls } = rootStore;
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<any>(null);
+  // const [error, setError] = useState<any>(null);
   const [chartData, setChartData] = useState<any>({});
   const [tableData, setTableData] = useState<any[]>([]);
   const [colors, setColors] = useState<string[]>([]);
 
   useEffect(() => {
-    const params = {
-      latitude: rootStore.latutudes,
-      longitude: rootStore.longitudes,
-      start_date: rootStore.headerControls?.beginDate,
-      end_date: rootStore.headerControls?.endDate,
-      hourly: [
-        WeatherParams.temperature_2m,
-        WeatherParams.precipitation,
-        WeatherParams.rain,
-        WeatherParams.snowfall,
-        WeatherParams.weather_code,
-        WeatherParams.cloud_cover,
-      ],
-      daily: [
-        WeatherParams.temperature_2m_mean,
-        WeatherParams.precipitation_sum,
-      ],
-      timezone: "auto",
-    };
-    const fetchData = async () => {
+    if (rootStore?.apiData?.length) {
       const start = performance.now();
-      try {
-        if (
-          rootStore.selectedCitiesInfo.length &&
-          rootStore.headerControls?.beginDate &&
-          rootStore.headerControls.endDate
-        ) {
-          const apiData = await fetchHistoricalDataForMultipleCities(params);
-          const { weatherData, tableData, colors } = generateComboChartData(
-            apiData,
-            params
-          );
-          console.log(tableData);
-          if (!weatherData) {
-            throw new Error("Network response was not ok");
-          }
-          setColors(colors);
-          setChartData(weatherData);
-          setTableData(tableData);
-        }
-      } catch (error) {
-        setError(error);
-      } finally {
-        setIsLoading(false);
-        const end = performance.now();
-        console.log(`Data fetching took ${end - start} ms`);
+      const { weatherData, tableData, colors } = generateComboChartData(
+        rootStore.apiData,
+        rootStore.openMeteoParams(),
+        rootStore.selectedLocation
+      );
+      console.log(tableData);
+      console.log(weatherData);
+      if (!weatherData) {
+        throw new Error("Network response was not ok");
       }
-    };
-    if (
-      rootStore.selectedCitiesInfo.length &&
-      rootStore.headerControls?.beginDate &&
-      rootStore.headerControls.endDate
-    ) {
-      console.log("here");
-      fetchData();
+      setColors(colors);
+      setChartData(weatherData);
+      setTableData(tableData);
+      const end = performance.now();
+      console.log(`${end - start} ms to generate data`);
     } else {
-      setIsLoading(false);
+      setColors([]);
+      setChartData([]);
+      setTableData([]);
     }
-  }, [
-    rootStore.activeTab,
-    rootStore.selectedCitiesInfo,
-    rootStore.headerControls?.beginDate,
-    rootStore.headerControls?.endDate,
-  ]);
+    setIsLoading(false);
+  }, [rootStore.apiData]);
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
+  // if (error) {
+  //   return <div>Error: {error.message}</div>;
+  // }
 
   const handleTableUpdate = (selection: any[]) => {
     console.log("selection", selection);
