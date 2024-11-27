@@ -2,11 +2,12 @@
 import { ControlHeader } from "@/components/ControlHeader";
 import ControlHeaderSSR from "@/components/ControlHeaderSSR";
 import Sidebar from "@/components/Sidebar";
-import RootStore from "@/stores/RootStore";
+import RootStore, { UserLocation } from "@/stores/RootStore";
 import { usePathname } from "next/navigation";
 import "primereact/resources/themes/lara-light-blue/theme.css";
-import { createContext } from "react";
+import { createContext, useEffect } from "react";
 import "./globals.css";
+import { getLocation } from "@/helper/LocationHelper";
 
 const rootStore = new RootStore();
 export const rootStoreContext = createContext(rootStore);
@@ -16,6 +17,33 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  useEffect(() => {
+    const fetchLocation = async () => {
+      try {
+        let userLocation = undefined;
+        const cachedLocation = localStorage.getItem("location");
+        if (cachedLocation) {
+          console.log(JSON.parse(cachedLocation));
+          rootStore.setLocation(JSON.parse(cachedLocation));
+          userLocation= JSON.parse(cachedLocation);
+        } else {
+          const location = await getLocation();
+          if (location) {
+            localStorage.setItem("location", JSON.stringify(location));
+            rootStore.setLocation(location as UserLocation);
+            userLocation = location;
+          }
+        }
+        if(!userLocation) return;
+      } catch (error) {
+        console.error("Error fetching location:", error);
+      } finally {
+        // setIsLoading(false);
+      }
+    };
+
+    fetchLocation();
+  }, []);
   return (
     <html lang="en">
       <body>
