@@ -27,9 +27,11 @@ export const getLocation = () => {
             console.log(position);
             const { latitude, longitude } = position.coords;
             const city = await fetchCity(latitude, longitude);
+            console.log(city)
             resolve({
               name: city.address.city,
               id: city.osm_id,
+              country: city.adress.country,
               location: {
                 longitute: longitude,
                 latitude,
@@ -59,10 +61,11 @@ export const getLocationByName = async (name: string) => {
     );
     const data = await response.json();
     if (data && data.length > 0) {
-      const { display_name, osm_id, lat, lon } = data[0];
+      const { osm_id, lat, lon, adress } = data[0];
       return {
-        name: display_name,
+        name: adress.city,
         id: osm_id,
+        country: adress.country,
         location: {
           latitude: Number(lat),
           longitute: Number(lon),

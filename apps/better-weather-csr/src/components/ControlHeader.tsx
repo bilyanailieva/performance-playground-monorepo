@@ -29,9 +29,12 @@ export const ControlHeader = observer(() => {
       (feature: any) =>
         feature.properties.capital === rootStore.selectedLocation?.name
     );
+    console.log(existingOption);
     if (rootStore.selectedLocation?.name && existingOption) {
+      rootStore.selectedCities([existingOption.properties.iso_a3]);
       setSelectedLocations([existingOption.properties.iso_a3]);
     }
+    handleBtnClick();
   }, [pathName]);
 
   useEffect(() => {

@@ -14,9 +14,10 @@ type ControlHeaderSettings = {
 };
 
 export type UserLocation = {
-  name?: string;
-  id?: number;
-  location?: { longitute: number; latitude: number; timezone: string };
+  name: string;
+  id: number;
+  country: string;
+  location: { longitute: number; latitude: number; timezone: string };
 };
 
 export default class RootStore {
@@ -55,12 +56,19 @@ export default class RootStore {
     return this._controlHeaderState;
   }
 
-  setLocation(updates: Partial<UserLocation>) {
+  setLocation(updates: UserLocation) {
     console.log(updates);
     this._selectedLocation = {
       ...this._selectedLocation,
       ...updates,
     };
+    const existingOption = europeanCapitals.features.find(
+      (feature: any) =>
+        feature.properties.country === updates?.country
+    );
+    if(existingOption) {
+      this._selectedCitiesInfo = [{iso_a3: existingOption.properties.iso_a3, ...updates.location, capital: existingOption.properties.capital }];
+    }
   }
 
   get selectedLocation() {
@@ -80,6 +88,7 @@ export default class RootStore {
             this._selectedLocation = {
               name: city.display_name,
               id: city.osm_id,
+              country: city.iso_a3,
               location: {
                 longitute: longitude,
                 latitude,
@@ -183,7 +192,7 @@ export default class RootStore {
   }
 }
 
-type CityInfo = {
+export type CityInfo = {
   iso_a3: string;
   latitude?: number;
   longitude?: number;
