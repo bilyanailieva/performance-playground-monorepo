@@ -33,7 +33,7 @@ export const options = {
 const LineChart = (props: LineChartProps) => {
   const [chartData, setChartData] = useState<any>([]);
   useEffect(() => {
-    if (!props.chartData) return;
+    if (!props.chartData || !props.cityColors.length) return;
     console.log(props.cityColors);
     const finalData = generateLineChartData(
       props.chartData,

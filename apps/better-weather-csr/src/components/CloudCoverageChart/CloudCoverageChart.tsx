@@ -10,6 +10,11 @@ export const CloudCoverageChart = observer(
     const [chartOptions, setChartOptions] = useState({});
 
     useEffect(() => {
+      if (!props.apiData.length || !props.cityColors.length) {
+        setChartData([]);
+        setChartOptions([]);
+        return;
+      }
       const formattedData = generateCloudCoverageData(
         props.apiData,
         props.cityColors
