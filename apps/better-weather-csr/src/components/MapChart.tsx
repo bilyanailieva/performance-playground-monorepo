@@ -46,7 +46,7 @@ const MapChart = observer(() => {
 
     const fetchWeather = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/test", {
+        const response = await axios.get("http://localhost:8080/history", {
           params: queryParams,
           paramsSerializer: (params) => {
             // Custom serializer to correctly handle array parameters

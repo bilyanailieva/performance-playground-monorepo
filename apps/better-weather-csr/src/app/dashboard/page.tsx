@@ -4,71 +4,17 @@ import { useContext, useEffect, useState } from "react";
 
 import TableLegend from "@/components/TableLegend/TableLegend";
 import LineChart from "@/components/TemperatureChart/LineChart";
-import { getLocation } from "@/helper/LocationHelper";
 import { generateComboChartData } from "@/utils/DataFormatters";
-import moment from "moment";
-import {
-  WeatherParams,
-  fetchForecastData,
-  fetchHistoricalDataForMultipleCities,
-  getForecastDataParams,
-} from "../../service/OpenMeteoService";
 import { rootStoreContext } from "./../layout";
 import CurrentWeatherCard from "@/components/CurrentWeatherCard/CurrentWeatherCard";
-import { momentDateToString } from "@/utils/FormatDate";
 
 const DashboardContainer = observer(() => {
   const rootStore = useContext(rootStoreContext);
-  const { selectedLocation, headerControls } = rootStore;
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<any>(null);
+  const [error, _setError] = useState<any>(null);
   const [chartData, setChartData] = useState<any>({});
   const [tableData, setTableData] = useState<any[]>([]);
   const [colors, setColors] = useState<string[]>([]);
-
-  useEffect(() => {
-    const fetchLocation = async () => {
-      try {
-        let userLocation = undefined;
-        const cachedLocation = localStorage.getItem("location");
-        if (cachedLocation) {
-          console.log(JSON.parse(cachedLocation));
-          rootStore.setLocation(JSON.parse(cachedLocation));
-          userLocation= JSON.parse(cachedLocation);
-        } else {
-          const location = await getLocation();
-          if (location) {
-            localStorage.setItem("location", JSON.stringify(location));
-            rootStore.setLocation(location);
-            userLocation = location;
-          }
-        }
-        if(!userLocation) return;
-        const data = await fetchForecastData({
-          start_date: momentDateToString(rootStore.headerControls.beginDate),
-          end_date: momentDateToString(rootStore.headerControls.endDate),
-          latitude: [userLocation?.location?.latitude],
-          longitude: [userLocation?.location?.latitude],
-          timezone: rootStore.selectedLocation?.location?.timezone ?? 'auto',
-          hourly: [
-            WeatherParams.temperature_2m,
-            WeatherParams.precipitation,
-            WeatherParams.rain,
-            WeatherParams.snowfall,
-            WeatherParams.weather_code,
-            WeatherParams.cloud_cover,
-          ]
-        });
-        rootStore.setApiData(data);
-      } catch (error) {
-        console.error("Error fetching location:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchLocation();
-  }, []);
 
   useEffect(() => {
     if (rootStore?.apiData?.length) {
@@ -90,6 +36,7 @@ const DashboardContainer = observer(() => {
       setChartData([]);
       setTableData([]);
     }
+    setIsLoading(false);
   }, [
     rootStore.apiData
   ]);

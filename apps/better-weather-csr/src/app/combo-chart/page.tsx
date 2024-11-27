@@ -32,13 +32,12 @@ const ComboChartPage = observer(() => {
   const [colors, setColors] = useState<string[]>([]);
 
   useEffect(() => {
+    console.log('ROOTSTORE API DATA', rootStore.apiData)
     if (rootStore?.apiData?.length) {
       const start = performance.now();
       const { weatherData, tableData, colors } = generateComboChartData(
         rootStore.apiData,
-        rootStore.openMeteoParams(),
-        rootStore.selectedLocation
-      );
+        rootStore.openMeteoParams() );
       console.log(tableData);
       console.log(weatherData);
       if (!weatherData) {
@@ -50,6 +49,7 @@ const ComboChartPage = observer(() => {
       const end = performance.now();
       console.log(`${end - start} ms to generate data`);
     } else {
+      console.log('HEHEHEHEHEH')
       setColors([]);
       setChartData([]);
       setTableData([]);
