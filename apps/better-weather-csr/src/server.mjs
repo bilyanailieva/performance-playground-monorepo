@@ -1,27 +1,9 @@
 import axios from "axios";
-import cors from "cors";
-import express from "express";
-import { createServer } from "http";
 import moment from "moment";
-import next from "next";
-import { parse } from "url";
+import { cors } from "@elysiajs/cors";
+import { Elysia } from "elysia";
 
-const dev = process.env.NODE_ENV !== "production";
-const app = next({ dev });
-const handle = app.getRequestHandler();
-
-const server = express();
-
-server.use(cors());
-server.use(express.json());
-server.use(express.urlencoded({ extended: true }));
-
-const fetchWithAxios = async () => {
-  const resp = await axios.get(
-    "https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.405&daily=temperature_2m_max,temperature_2m_min&timezone=Europe/Berlin"
-  );
-  return resp.data;
-};
+const app = new Elysia().use(cors());
 
 const fetchOpenMeteoData = async (url, params) => {
   try {
@@ -52,6 +34,7 @@ const fetchOpenMeteoData = async (url, params) => {
         });
       });
     }
+    console.log(data);
     return data;
   } catch (error) {
     console.error("Error fetching data:", error);
@@ -59,44 +42,82 @@ const fetchOpenMeteoData = async (url, params) => {
   }
 };
 
-server.get("/history", async (req, res) => {
-  try {
-    const response = await fetchOpenMeteoData(
-      "https://archive-api.open-meteo.com/v1/archive",
-      req.query
-    );
-    res.status(200).json(response);
-  } catch (e) {
-    res.status(500).json("Error occurred");
-  }
-});
 
-server.get("/forecast", async (req, res) => {
+// Route to fetch forecast data
+app.get("/forecast", async (req) => {
+  console.log("Route /forecast has been registered.");
   try {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const queryParams = url.searchParams;
+
+    const latitudes = queryParams.getAll("latitude");
+    const longitudes = queryParams.getAll("longitude");
+    const startDate = queryParams.get("start_date");
+    const endDate = queryParams.get("end_date");
+    const hourly = queryParams.getAll("hourly");
+    const timezone = queryParams.get("timezone");
+
+    const params = {
+      latitude: latitudes.join(","),
+      longitude: longitudes.join(","),
+      start_date: startDate,
+      end_date: endDate,
+      hourly: hourly.join(','),
+      timezone,
+    };
+
     const response = await fetchOpenMeteoData(
       "https://api.open-meteo.com/v1/forecast",
-      req.query
+      params
     );
-    res.status(200).json(response);
-  } catch (e) {
-    res.status(500).json("Error occurred");
+
+    return response;
+  } catch (error) {
+    console.error("Error occurred in /forecast:", error.message);
+    return {
+      status: 500,
+      body: `Error occurred: ${error.message}`,
+    };
   }
 });
 
-app.prepare().then(() => {
-  server.all("*", (req, res) => {
-    const parsedUrl = parse(req.url, true);
-    handle(req, res, parsedUrl);
-  });
+app.get("/history", async (req) => {
+  console.log("Route /forecast has been registered.");
+  try {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const queryParams = url.searchParams;
 
-  const httpServer = createServer(server);
+    const latitudes = queryParams.getAll("latitude");
+    const longitudes = queryParams.getAll("longitude");
+    const startDate = queryParams.get("start_date");
+    const endDate = queryParams.get("end_date");
+    const hourly = queryParams.get("hourly");
+    const timezone = queryParams.get("timezone");
 
-  const PORT = 8080; // Updated port number
+    const params = {
+      latitude: latitudes.join(","),
+      longitude: longitudes.join(","),
+      start_date: startDate,
+      end_date: endDate,
+      hourly,
+      timezone,
+    };
 
-  httpServer.listen(PORT, () => {
-    console.log(`Server ready on http://localhost:${PORT}`);
-  });
+    const response = await fetchOpenMeteoData(
+      "https://archive-api.open-meteo.com/v1/archive",
+      params
+    );
+    
+    return JSON.stringify(response);
+  } catch (error) {
+    console.error("Error occurred in /forecast:", error.message);
+    return {
+      status: 500,
+      body: `Error occurred: ${error.message}`,
+    };
+  }
 });
 
-export const GET = app.handle;
-export const POST = app.handle;
+app.listen(8080, () => {
+  console.log("Elysia server is running on http://localhost:8080");
+});

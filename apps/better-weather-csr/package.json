@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "dev:node": "node src/server.mjs",
-    "dev:bun": "bun src/bun-server.js"
+    "dev:node": "concurrently \"next dev\" \"node src/node-server.mjs\"",
+    "dev:bun": "concurrently \"next dev\" \"bun src/server.mjs\""
   },
   "dependencies": {
     "@elysiajs/cors": "^1.1.0",
@@ -46,6 +46,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/react-plotly.js": "^2.6.3",
+    "concurrently": "^9.1.0",
     "daisyui": "^4.9.0",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
