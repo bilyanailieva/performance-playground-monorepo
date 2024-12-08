@@ -57,7 +57,6 @@ export default class RootStore {
   }
 
   setLocation(updates: UserLocation) {
-    console.log(updates);
     this._selectedLocation = {
       ...this._selectedLocation,
       ...updates,

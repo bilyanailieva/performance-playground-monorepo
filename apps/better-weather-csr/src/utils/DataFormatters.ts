@@ -56,7 +56,7 @@ export const generateComboChartData = (
       color: colors[index],
     };
 
-    intervalEntries.forEach((entry: any, key: any) => {
+    intervalEntries?.forEach((entry: any, key: any) => {
       weatherData.time.push(entry.timestamp);
       weatherData.temperature2m.push(entry.temperature_2m);
       weatherData.rain.push(entry.rain);

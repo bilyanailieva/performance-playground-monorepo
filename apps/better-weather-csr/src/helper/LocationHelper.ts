@@ -1,5 +1,7 @@
 "use client";
 
+import { UserLocation } from "@/stores/RootStore";
+
 export const fetchCity = async (lat: number, lon: number) => {
   try {
     const response = await fetch(
@@ -16,7 +18,7 @@ export const fetchCity = async (lat: number, lon: number) => {
   }
 };
 
-export const getLocation = () => {
+export const getLocation = (): Promise<UserLocation | undefined> => {
   return new Promise((resolve, reject) => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -31,7 +33,7 @@ export const getLocation = () => {
             resolve({
               name: city.address.city,
               id: city.osm_id,
-              country: city.adress.country,
+              country: city.address.country,
               location: {
                 longitute: longitude,
                 latitude,

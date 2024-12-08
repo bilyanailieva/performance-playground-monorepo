@@ -25,7 +25,9 @@ export const generateColors = (cities: any[]) => {
       color = adjustColor(baseColor, variation * 20);
     }
 
-    colors.push(color);
+    if(color) {
+      colors.push(color);
+    }
   });
 
   return colors;

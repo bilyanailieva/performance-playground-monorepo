@@ -22,15 +22,17 @@ export default function RootLayout({
       try {
         let userLocation = undefined;
         const cachedLocation = localStorage.getItem("location");
+        console.log(cachedLocation);
         if (cachedLocation) {
           console.log(JSON.parse(cachedLocation));
           rootStore.setLocation(JSON.parse(cachedLocation));
           userLocation= JSON.parse(cachedLocation);
         } else {
           const location = await getLocation();
+          console.log(location);
           if (location) {
             localStorage.setItem("location", JSON.stringify(location));
-            rootStore.setLocation(location as UserLocation);
+            rootStore.setLocation(location);
             userLocation = location;
           }
         }

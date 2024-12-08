@@ -15,7 +15,7 @@ const TableLegend = dynamic(
 import { generateComboChartData } from "@/utils/DataFormatters";
 import { observer } from "mobx-react-lite";
 import dynamic from "next/dynamic";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import {
   WeatherParams,
   fetchHistoricalDataForMultipleCities,
@@ -31,7 +31,7 @@ const ComboChartPage = observer(() => {
   const [tableData, setTableData] = useState<any[]>([]);
   const [colors, setColors] = useState<string[]>([]);
 
-  useEffect(() => {
+  useMemo(() => {
     console.log('ROOTSTORE API DATA', rootStore.apiData)
     if (rootStore?.apiData?.length) {
       const start = performance.now();

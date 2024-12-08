@@ -72,7 +72,8 @@ export const ControlHeader = observer(() => {
   }, []);
 
   const handleBtnClick = async () => {
-    const now = moment(new Date());
+    const yesterday = moment(new Date()).subtract(1, 'days');
+    
     if (
       rootStore?.headerControls?.endDate < rootStore?.headerControls?.beginDate
     ) {
@@ -83,8 +84,8 @@ export const ControlHeader = observer(() => {
         detail: "Start date should be before end date!",
       });
     } else if (
-      rootStore.headerControls.endDate >= now ||
-      rootStore.headerControls.endDate >= now
+      rootStore.headerControls.endDate >= yesterday &&
+      rootStore.headerControls.beginDate >= yesterday
     ) {
       console.log("prepare forecast presentation data here ");
       try {

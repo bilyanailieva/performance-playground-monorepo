@@ -9,7 +9,6 @@ import {
   IconMap,
 } from "@tabler/icons-react";
 import { observer } from "mobx-react-lite";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Menu } from "primereact/menu";
 import { MenuItem } from "primereact/menuitem";
