@@ -30,7 +30,7 @@ const DetailsTableLegend = ({
 
   useMemo(() => {
     const cols =
-      tableData?.[0].metrics.length > 0
+      tableData?.[0]?.metrics.length > 0
         ? Object.keys(tableData[0].metrics[0]).filter((key) => key !== "metric")
         : [];
     setCityColumns(cols);

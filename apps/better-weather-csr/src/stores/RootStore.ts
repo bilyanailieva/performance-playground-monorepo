@@ -4,7 +4,7 @@ import { europeanCapitals } from "@/helper/eu-countries-capitals.geo";
 import { WeatherParams } from "@/models/OpenMeteo";
 import { makeAutoObservable } from "mobx";
 import moment from "moment";
-import { NavigatorViews } from "../constants/NavigatorViews";
+import { NavigatorViewValues, NavigatorViews } from "../constants/NavigatorViews";
 import { fetchCity } from "../helper/LocationHelper";
 
 type ControlHeaderSettings = {
@@ -27,7 +27,7 @@ export default class RootStore {
 
   private defaultBegin = moment(new Date());
   private defaultEnd = moment(new Date()).add(7, "days");
-  private _activeTab: keyof typeof NavigatorViews = NavigatorViews.dashboard;
+  private _activeTab: NavigatorViewValues = NavigatorViews.dashboard;
   private _controlHeaderState: ControlHeaderSettings = {
     beginDate: this.defaultBegin,
     endDate: this.defaultEnd,
@@ -35,8 +35,7 @@ export default class RootStore {
   };
   private _selectedLocation: UserLocation | undefined = undefined;
 
-  setActiveTab(tab: keyof typeof NavigatorViews) {
-    console.log("ACTIVETAB", tab);
+  setActiveTab(tab: NavigatorViewValues) {
     this._activeTab = tab;
   }
 

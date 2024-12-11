@@ -9,11 +9,11 @@ import {
   IconMap,
 } from "@tabler/icons-react";
 import { observer } from "mobx-react-lite";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Menu } from "primereact/menu";
 import { MenuItem } from "primereact/menuitem";
 import { Tooltip } from "primereact/tooltip";
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, useEffect } from "react";
 
 const itemRenderer = (item: MenuItem, options: any, activeTab: string) => {
   return (
@@ -38,9 +38,14 @@ export const Sidebar = observer(() => {
   const rootStore = useContext(rootStoreContext);
   const { activeTab } = rootStore;
   const router = useRouter();
+  const pathname = usePathname()
+
+  useEffect(() => {
+    rootStore.setActiveTab(pathname as any);
+  }, []);
 
   const onMenuItemClick = useCallback((e: any) => {
-    router.push(`/${e.item.id}`);
+    router.push(`${e.item.id}`);
     rootStore.setActiveTab(e.item.id);
   }, []);
 
