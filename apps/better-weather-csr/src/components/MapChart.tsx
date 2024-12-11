@@ -2,12 +2,14 @@
 
 import axios from "axios";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Plot from "react-plotly.js";
 import { processWeatherData } from "../helper/MapContainerHelper";
 import { europeanCapitals } from "../helper/eu-countries-capitals.geo"; // Replace with the path to your GeoJSON file
+import { rootStoreContext } from "@/app/layout";
 
 const MapChart = observer(() => {
+  const rootStore = useContext(rootStoreContext);
   const [locations, setLocations] = useState([]);
   const [frames, setFrames] = useState<any>([]);
   const [steps, setSteps] = useState<any>([]);
@@ -15,69 +17,20 @@ const MapChart = observer(() => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    let queryParams: any = {
-      isoKeys: [],
-      latitude: [],
-      longitude: [],
-      start_date: "2023-01-01",
-      end_date: "2024-05-01",
-      hourly: [
-        "temperature_2m",
-        "precipitation",
-        "rain",
-        "snowfall",
-        "weather_code",
-        "cloud_cover",
-      ],
-      timezone: "auto",
-    };
-
-    europeanCapitals.features?.forEach((feature: any, index) => {
-      if (
-        feature.properties.latitude &&
-        feature.properties.longitude &&
-        index < 5
-      ) {
-        queryParams.latitude.push(feature.properties.latitude);
-        queryParams.longitude.push(feature.properties.longitude);
-        queryParams.isoKeys.push(feature.properties.iso_a3);
-      }
-    });
-
-    const fetchWeather = async () => {
-      try {
-        const response = await axios.get("http://localhost:8080/history", {
-          params: queryParams,
-          paramsSerializer: (params) => {
-            // Custom serializer to correctly handle array parameters
-            const qs = Object.keys(params)
-              .map((key) => {
-                const value = params[key];
-                return Array.isArray(value)
-                  ? value.map((val) => `${key}=${val}`).join("&")
-                  : `${key}=${value}`;
-              })
-              .join("&");
-            return qs;
-          },
-        });
-        const res = await response.data;
-        if (!response) {
-          throw new Error("Network response was not ok");
-        }
-        const processedData: any = processWeatherData(res, queryParams);
+    try{
+      if(rootStore.isoCodes.length) {
+        const processedData: any = processWeatherData(rootStore.apiData, rootStore.isoCodes);
         setLocations(processedData.locations);
         setFrames(processedData.frames);
         setSteps(processedData.steps);
+      }
       } catch (error: any) {
         setError(error.message);
       } finally {
         setLoading(false);
       }
-    };
-
-    fetchWeather();
-  }, []);
+    
+  }, [rootStore.apiData]);
 
   if (loading) {
     return <div>Loading...</div>;

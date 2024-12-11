@@ -123,6 +123,7 @@ export default class RootStore {
   }
 
   selectedCities = (cityCodes: string[]) => {
+    this._isoCodes = cityCodes;
     const selectedCities: CityInfo[] = [];
     const longitudes: number[] = [];
     const latutudes: number[] = [];
@@ -148,6 +149,11 @@ export default class RootStore {
 
     return { longitude: longitudes, latitude: latutudes };
   };
+
+  private _isoCodes: string[] = [];
+  get isoCodes(){
+    return this._isoCodes;
+  }
 
   setSelectedCitiesInfo = (info: CityInfo) => {
     this._selectedCitiesInfo = [info];

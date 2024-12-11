@@ -4,8 +4,7 @@ import { europeanCapitals } from "./eu-countries-capitals.geo";
 
 export const processWeatherData = (data: any, params: any) => {
   const feData: any = [];
-  console.log(data);
-  const locations = params.isoKeys;
+  const locations = params;
 
   const monthlyData: any = {};
 
@@ -21,6 +20,7 @@ export const processWeatherData = (data: any, params: any) => {
       }
       monthlyData[date][iso_a3].push(entry.temperature_2m);
     });
+    feData.push(monthlyData);
   });
 
   const frames = Object.keys(monthlyData).map((month) => {
@@ -62,5 +62,5 @@ export const processWeatherData = (data: any, params: any) => {
     };
   });
 
-  return { weatherData: data, locations, frames, steps };
+  return { weatherData: feData, locations, frames, steps };
 };

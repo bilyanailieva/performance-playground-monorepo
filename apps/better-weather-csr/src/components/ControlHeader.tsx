@@ -16,6 +16,7 @@ import { momentDateToString } from "@/utils/FormatDate";
 import { InputSwitch } from "primereact/inputswitch";
 import { Toast } from "primereact/toast";
 import { WeatherParams, fetchForecastData, fetchHistoricalDataForMultipleCities } from "@/service/OpenMeteoService";
+import { NavigatorViews } from "@/constants/NavigatorViews";
 
 export const ControlHeader = observer(() => {
   const rootStore = useContext(rootStoreContext);
@@ -29,8 +30,22 @@ export const ControlHeader = observer(() => {
       (feature: any) =>
         feature.properties.capital === rootStore.selectedLocation?.name
     );
-    console.log(existingOption);
-    if (rootStore.selectedLocation?.name && existingOption) {
+    if(pathName === NavigatorViews.map) {
+      let lats = [];
+      let isoKeys: string[] = [];
+      europeanCapitals.features?.forEach((feature: any, index) => {
+        if (
+          feature.properties.latitude &&
+          feature.properties.longitude
+        ) {
+          // lats.push(feature.properties.latitude);
+          // longs.push(feature.properties.longitude);
+          isoKeys.push(feature.properties.iso_a3)
+        }
+      });
+      rootStore.selectedCities(isoKeys);
+      setSelectedLocations(isoKeys);
+    } else if (pathName !== NavigatorViews.map && rootStore.selectedLocation?.name && existingOption) {
       rootStore.selectedCities([existingOption.properties.iso_a3]);
       setSelectedLocations([existingOption.properties.iso_a3]);
     }
