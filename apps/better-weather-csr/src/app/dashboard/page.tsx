@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 
 import TableLegend from "@/components/TableLegend/TableLegend";
 import LineChart from "@/components/TemperatureChart/LineChart";
-import { generateComboChartData } from "@/utils/DataFormatters";
+import { generateComboChartData, generateDashboardData } from "@/utils/DataFormatters";
 import { rootStoreContext } from "./../layout";
 import CurrentWeatherCard from "@/components/CurrentWeatherCard/CurrentWeatherCard";
 
@@ -18,13 +18,11 @@ const DashboardContainer = observer(() => {
 
   useEffect(() => {
     if (rootStore?.apiData?.length) {
-      const { weatherData, tableData, colors } = generateComboChartData(
+      const { weatherData, tableData, colors } = generateDashboardData(
         rootStore.apiData,
         rootStore.openMeteoParams(),
         rootStore.selectedLocation
       );
-      console.log(tableData);
-      console.log(weatherData);
       if (!weatherData) {
         throw new Error("Network response was not ok");
       }

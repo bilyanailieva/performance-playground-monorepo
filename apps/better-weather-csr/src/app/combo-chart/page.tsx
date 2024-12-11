@@ -8,8 +8,8 @@ const CloudCoverageChart = dynamic(
   () => import("@/components/CloudCoverageChart/CloudCoverageChart"),
   { ssr: false }
 );
-const TableLegend = dynamic(
-  () => import("@/components/TableLegend/TableLegend"),
+const DetailsTableLegend = dynamic(
+  () => import("@/components/DetailsTableLegend/DetailsTableLegend"),
   { ssr: false }
 );
 import { generateComboChartData } from "@/utils/DataFormatters";
@@ -38,8 +38,6 @@ const ComboChartPage = observer(() => {
       const { weatherData, tableData, colors } = generateComboChartData(
         rootStore.apiData,
         rootStore.openMeteoParams() );
-      console.log(tableData);
-      console.log(weatherData);
       if (!weatherData) {
         throw new Error("Network response was not ok");
       }
@@ -76,9 +74,9 @@ const ComboChartPage = observer(() => {
           id="card-left-full"
           className="rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative h-full p-3 overflow-hidden"
         >
-          <TableLegend
+          <DetailsTableLegend
             tableData={tableData}
-            cityColors={colors}
+            // cityColors={colors}
             // onSelectionChange={handleTableUpdate}
           />
         </div>
