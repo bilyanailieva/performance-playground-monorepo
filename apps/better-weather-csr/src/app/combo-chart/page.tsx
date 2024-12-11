@@ -16,10 +16,6 @@ import { generateComboChartData } from "@/utils/DataFormatters";
 import { observer } from "mobx-react-lite";
 import dynamic from "next/dynamic";
 import { useContext, useEffect, useMemo, useState } from "react";
-import {
-  WeatherParams,
-  fetchHistoricalDataForMultipleCities,
-} from "../../service/OpenMeteoService";
 import { rootStoreContext } from "../layout";
 
 const ComboChartPage = observer(() => {
