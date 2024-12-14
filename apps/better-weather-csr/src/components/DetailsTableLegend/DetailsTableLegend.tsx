@@ -17,6 +17,7 @@ import {
   momentDateToString,
 } from "@/utils/FormatDate";
 import moment from "moment";
+import styles from '../TableLegend/TableLegend.module.scss';
 
 
 const DetailsTableLegend = ({
@@ -51,6 +52,11 @@ const DetailsTableLegend = ({
           nestedTable(rowData.metrics, cityColumns)
         }
       >
+        <Column
+          selectionMode="multiple"
+          headerStyle={{ width: "3rem" }}
+          className={styles.checkbox}
+        ></Column>
         {/* Main table columns */}
         <Column
           field="datetime"

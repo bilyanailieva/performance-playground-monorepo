@@ -1,6 +1,7 @@
 import { europeanCapitals } from "@/helper/eu-countries-capitals.geo";
 import { UserLocation } from "@/stores/RootStore";
 import { calculateMean, chooseInterval } from "@/utils/ChartHelpers";
+import { intervalToDateFormat } from "@/utils/FormatDate";
 import { getTimestepsByTimeRange } from "@/utils/WeatherInfoHelpers";
 import moment, { Moment } from "moment";
 
@@ -8,24 +9,32 @@ export const generateLineChartData = (
   apiData: any,
   cityColors: string[],
   location?: UserLocation,
-  field?: string
+  field?: string,
+  viewMode?: "hourly" | "daily" | "monthly" | 'auto'
 ) => {
   let data: any = [];
   if (apiData.length) {
-    const interval = chooseInterval(apiData[0].timeRange);
-    if (interval === "month") {
-      data = getMonthlyLineData(apiData, cityColors);
-    } else if (interval === "day" && field === "minMax") {
-      data = getDailyLineData(apiData, cityColors, location);
-    } else if (interval === "day") {
-      data = getDailyMeanLineData(apiData, cityColors);
+    let interval: "hourly" | "daily" | "monthly" | "auto" = "auto";
+    if (viewMode) {
+      interval = viewMode;
     }
+    if(interval === 'auto') {
+      interval = chooseInterval(apiData[0].timeRange);
+    }
+    // if (interval === "monthly") {
+    //   data = getMonthlyLineData(apiData, cityColors);
+    // } else if (field === "minMax") {
+    data = getDailyLineData(apiData, interval, cityColors, location);
+    // }
+    //  else if (interval === "daily") {
+    //   data = getDailyMeanLineData(apiData, cityColors);
+    // }
   }
   return data;
 };
 
 const getMonthlyLineData = (apiData: any, cityColors: string[]) => {
-  const timesteps = getTimestepsByTimeRange(apiData[0].timeRange, "month");
+  const timesteps = getTimestepsByTimeRange(apiData[0].timeRange, "monthly");
   const finalData: any[] = [];
   apiData.forEach((cityInfo: any, index: number) => {
     const entryData: any = {};
@@ -65,10 +74,13 @@ const getMonthlyLineData = (apiData: any, cityColors: string[]) => {
 
 const getDailyLineData = (
   apiData: any,
+  viewMode: "hourly" | "daily" |'monthly',
   cityColors: string[],
   location?: UserLocation
 ) => {
-  const timesteps = getTimestepsByTimeRange(apiData[0].timeRange, "day");
+  const timesteps = getTimestepsByTimeRange(apiData[0].timeRange, viewMode);
+  const format = intervalToDateFormat(viewMode);
+  console.log(viewMode);
   const finalData: any[] = [];
 
   apiData.forEach((cityInfo: any, index: number) => {
@@ -76,7 +88,7 @@ const getDailyLineData = (
 
     // Iterate through each timestamp and group data by day
     cityInfo.time.forEach((timestamp: Moment, index: number) => {
-      const day = moment(timestamp).format("DD-MM-YYYY");
+      const day = moment(timestamp).startOf("hour").format(format);
       if (!entryData[day]) {
         entryData[day] = [];
       }
@@ -88,37 +100,90 @@ const getDailyLineData = (
       }
     });
 
-    // Calculate the daily average and format to one decimal place
-    const entryFinal = Object.keys(entryData).map((day) => {
-      return Math.max(...entryData[day])?.toFixed(1);
+    const pointColors = Object.keys(entryData).flatMap((key: any) => {
+      const val = entryData[key];
+      return val.map((entry: number) => {
+        if (entry < -10) {
+          return 'darkblue';
+        } else if (entry >= -10 && entry < 5) {
+          return 'lightblue';
+        } else if (entry >= 5 && entry < 22) {
+          return 'green';
+        } else if (entry >= 22 && entry < 32) {
+          return 'yellow';
+        } else if (entry >= 32) {
+          return 'red';
+        } else {
+          return 'green'; // Default case
+        }
+      });
     });
+    console.log(pointColors);
 
-    // Calculate the daily average and format to one decimal place
-    const entryFinal2 = Object.keys(entryData).map((day) => {
-      return Math.min(...entryData[day])?.toFixed(1);
-    });
+    const getSegmentColor = (ctx: any) => {
+      const { p0, p1 } = ctx; // p0 and p1 represent the two points of the segment
+      const point = p1.parsed.y
+      if (point < -10) return 'darkblue';
+      if (point >= -10 && point < 5) return 'lightblue';
+      if (point >= 5 && point < 22) return 'green';
+      if (point >= 22 && point < 32) return 'yellow';
+      if (point >= 32) return 'red';
+      return 'gray'; // Default case
+    };
 
-    // Push the formatted data for the city
-    finalData.push({
-      label: `Max daily temp`,
-      data: entryFinal,
-      borderColor: "red",
-      pointBackgroundColor: "red",
-      fill: false,
-      tension: 1,
-      yAxisID: "yAxis",
-      xAxisID: "xAxis",
-    });
-    finalData.push({
-      label: `Min daily temp`,
-      data: entryFinal2,
-      borderColor: "blue",
-      pointBackgroundColor: "blue",
-      fill: false,
-      tension: 1,
-      yAxisID: "yAxis",
-      xAxisID: "xAxis",
-    });
+    if (viewMode === "hourly") {
+        finalData.push({
+          label: `Hourly temperature`,
+          data: entryData,
+          pointBorderColor: pointColors,
+          pointBackgroundColor: pointColors,
+          pointRadius: 3, // Customize point size
+          borderWidth: 3,
+          yAxisID: "yAxis",
+          xAxisID: "xAxis",
+          elements: {
+            line: {
+              tension: 0.4, // Smooth lines
+            }
+          },
+          segment: {
+            borderColor: getSegmentColor, // Use the function to color line segments
+          }
+        });
+    } else {
+      // Calculate the daily average and format to one decimal place
+      const entryFinal = Object.keys(entryData).map((day) => {
+        return Math.max(...entryData[day])?.toFixed(1);
+      });
+
+      // Calculate the daily average and format to one decimal place
+      const entryFinal2 = Object.keys(entryData).map((day) => {
+        return Math.min(...entryData[day])?.toFixed(1);
+      });
+      console.log(entryFinal2);
+
+      // Push the formatted data for the city
+      finalData.push({
+        label: `Max daily temp`,
+        data: entryFinal,
+        borderColor: "red",
+        pointBackgroundColor: "red",
+        fill: false,
+        tension: 1,
+        yAxisID: "yAxis",
+        xAxisID: "xAxis",
+      });
+      finalData.push({
+        label: `Min daily temp`,
+        data: entryFinal2,
+        borderColor: "blue",
+        pointBackgroundColor: "blue",
+        fill: false,
+        tension: 1,
+        yAxisID: "yAxis",
+        xAxisID: "xAxis",
+      });
+    }
   });
 
   // Return datasets with daily labels
@@ -126,7 +191,7 @@ const getDailyLineData = (
 };
 
 const getDailyMeanLineData = (apiData: any, cityColors: string[]) => {
-  const timesteps = getTimestepsByTimeRange(apiData[0].timeRange, "day");
+  const timesteps = getTimestepsByTimeRange(apiData[0].timeRange, "daily");
   const finalData: any[] = [];
   apiData.forEach((cityInfo: any, index: number) => {
     const entryData: any = {};

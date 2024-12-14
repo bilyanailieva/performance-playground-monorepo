@@ -5,7 +5,7 @@ export const getTimestepsByTimeRange = (
     beginDate: string;
     endDate: string;
   },
-  interval: "month" | "day"
+  interval: "monthly" | "daily" | 'hourly' | 'auto'
 ) => {
   const startDate = moment(timeRange.beginDate);
   const endDate = moment(timeRange.endDate);
@@ -14,12 +14,15 @@ export const getTimestepsByTimeRange = (
   const current = startDate.clone();
 
   while (current.isBefore(endDate)) {
-    if (interval === "month") {
+    if (interval === "monthly") {
       timestepArray.push(current.format("MMM-yy"));
       current.add(1, "month");
-    } else if (interval === "day") {
+    } else if (interval === "daily") {
       timestepArray.push(current.format("DD-MM-yy"));
       current.add(1, "day");
+    } else if (interval === "hourly") {
+      timestepArray.push(current.format("lll"));
+      current.add(1, "hour");
     }
   }
 

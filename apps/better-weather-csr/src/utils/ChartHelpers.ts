@@ -8,9 +8,9 @@ export const chooseInterval = (timeRange: {
   const endDate = moment(timeRange.endDate);
   const monthsBetween = Math.abs(endDate.diff(startDate, "months"));
   if (monthsBetween <= 12) {
-    return "day";
+    return "daily";
   } else {
-    return "month";
+    return "monthly";
   }
 };
 

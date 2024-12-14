@@ -15,8 +15,14 @@ import { DateBox } from "./Calendar";
 import { momentDateToString } from "@/utils/FormatDate";
 import { InputSwitch } from "primereact/inputswitch";
 import { Toast } from "primereact/toast";
-import { WeatherParams, fetchForecastData, fetchHistoricalDataForMultipleCities } from "@/service/OpenMeteoService";
+import {
+  WeatherParams,
+  fetchForecastData,
+  fetchHistoricalDataForMultipleCities,
+} from "@/service/OpenMeteoService";
 import { NavigatorViews } from "@/constants/NavigatorViews";
+import { SelectButton } from "primereact/selectbutton";
+
 
 export const ControlHeader = observer(() => {
   const rootStore = useContext(rootStoreContext);
@@ -25,27 +31,47 @@ export const ControlHeader = observer(() => {
   const pathName = usePathname();
   const toast = useRef<Toast>(null);
 
+  const intervalOptions = [
+    {
+      name: "Auto",
+      value: "auto",
+    },
+    {
+      name: "Hourly",
+      value: "hourly",
+    },
+    {
+      name: "Daily",
+      value: "daily",
+      disabled: rootStore.currentTimeRangeInDays() < 2
+    },
+    {
+      name: "Monthly",
+      value: "montly",
+      disabled: rootStore.currentTimeRangeInDays() < 90
+    },
+  ];
+
   useEffect(() => {
     const existingOption = europeanCapitals.features.find(
       (feature: any) =>
         feature.properties.capital === rootStore.selectedLocation?.name
     );
-    if(pathName === NavigatorViews.map) {
+    if (pathName === NavigatorViews.map) {
       let lats = [];
       let isoKeys: string[] = [];
       europeanCapitals.features?.forEach((feature: any, index) => {
-        if (
-          feature.properties.latitude &&
-          feature.properties.longitude
-        ) {
-          // lats.push(feature.properties.latitude);
-          // longs.push(feature.properties.longitude);
-          isoKeys.push(feature.properties.iso_a3)
+        if (feature.properties.latitude && feature.properties.longitude) {
+          isoKeys.push(feature.properties.iso_a3);
         }
       });
       rootStore.selectedCities(isoKeys);
       setSelectedLocations(isoKeys);
-    } else if (pathName !== NavigatorViews.map && rootStore.selectedLocation?.name && existingOption) {
+    } else if (
+      pathName !== NavigatorViews.map &&
+      rootStore.selectedLocation?.name &&
+      existingOption
+    ) {
       rootStore.selectedCities([existingOption.properties.iso_a3]);
       setSelectedLocations([existingOption.properties.iso_a3]);
     }
@@ -87,8 +113,8 @@ export const ControlHeader = observer(() => {
   }, []);
 
   const handleBtnClick = async () => {
-    const yesterday = moment(new Date()).subtract(1, 'days');
-    
+    const yesterday = moment(new Date()).subtract(1, "days");
+
     if (
       rootStore?.headerControls?.endDate < rootStore?.headerControls?.beginDate
     ) {
@@ -104,25 +130,25 @@ export const ControlHeader = observer(() => {
     ) {
       console.log("prepare forecast presentation data here ");
       try {
-      const data = await fetchForecastData({
-        start_date: momentDateToString(rootStore.headerControls.beginDate),
-        end_date: momentDateToString(rootStore.headerControls.endDate),
-        latitude: rootStore.latutudes,
-        longitude: rootStore.longitudes,
-        timezone: rootStore.selectedLocation?.location?.timezone ?? 'auto',
-        hourly: [
-          WeatherParams.temperature_2m,
-          WeatherParams.precipitation,
-          WeatherParams.rain,
-          WeatherParams.snowfall,
-          WeatherParams.weather_code,
-          WeatherParams.cloud_cover,
-        ]
-      });
-      rootStore.setApiData(data);
-    } catch (e) {
-      console.error('Error!', e);
-    }
+        const data = await fetchForecastData({
+          start_date: momentDateToString(rootStore.headerControls.beginDate),
+          end_date: momentDateToString(rootStore.headerControls.endDate),
+          latitude: rootStore.latutudes,
+          longitude: rootStore.longitudes,
+          timezone: rootStore.selectedLocation?.location?.timezone ?? "auto",
+          hourly: [
+            WeatherParams.temperature_2m,
+            WeatherParams.precipitation,
+            WeatherParams.rain,
+            WeatherParams.snowfall,
+            WeatherParams.weather_code,
+            WeatherParams.cloud_cover,
+          ],
+        });
+        rootStore.setApiData(data);
+      } catch (e) {
+        console.error("Error!", e);
+      }
     } else {
       console.log("prepare historical presentation data here ");
       try {
@@ -131,7 +157,7 @@ export const ControlHeader = observer(() => {
           end_date: momentDateToString(rootStore.headerControls.endDate),
           latitude: rootStore.latutudes,
           longitude: rootStore.longitudes,
-          timezone: rootStore.selectedLocation?.location?.timezone ?? 'auto',
+          timezone: rootStore.selectedLocation?.location?.timezone ?? "auto",
           hourly: [
             WeatherParams.temperature_2m,
             WeatherParams.precipitation,
@@ -139,50 +165,55 @@ export const ControlHeader = observer(() => {
             WeatherParams.snowfall,
             WeatherParams.weather_code,
             WeatherParams.cloud_cover,
-          ]
+          ],
         });
         rootStore.setApiData(data);
       } catch (e) {
-        console.error('Error!', e);
+        console.error("Error!", e);
       }
     }
   };
 
   return (
-    <div className="card">
+    <div className="">
       <Toast ref={toast} />
-      <Toolbar
-        center={
-          <div className="flex flex-wrap align-items-center gap-3">
-            <div className="card flex justify-content-center">
-              {pathName === "/dashboard" ? (
-                <div className="p-inputgroup">
-                  <InputText
-                    value={val}
-                    onClick={handleInputClick}
-                    onChange={onInputChange}
-                    placeholder="Search..."
-                    className="h-full flex grow p-2 border border-solid border-black rounded-none"
-                  />
-                  <Button
-                    icon={<IconSearch stroke={2} />}
-                    className="p-button-info border border-solid border-black border-l-0"
-                    onClick={handleSearch}
-                  />
-                </div>
-              ) : (
-                <MultiSelect
-                  value={selectedLocations}
-                  onChange={handleSelection}
-                  options={europeanCapitals.features}
-                  optionLabel="properties.capital"
-                  optionValue="properties.iso_a3"
-                  placeholder="Select Cities"
-                  maxSelectedLabels={3}
-                  className="w-full md:w-20rem"
+      <Toolbar className="p-3 bg-blue-500 rounded-none"
+        left={
+          <div className="card flex justify-content-center">
+            {pathName === "/dashboard" ? (
+              <div className="p-inputgroup">
+                <InputText
+                  value={val}
+                  onClick={handleInputClick}
+                  onChange={onInputChange}
+                  placeholder="Search..."
+                  className="h-full flex grow p-2 border border-solid border-black rounded-none"
                 />
-              )}
-            </div>
+                <Button
+                  icon={<IconSearch stroke={2} />}
+                  className="p-button-info bg-white border border-solid border-black border-l-0"
+                  onClick={handleSearch}
+                />
+              </div>
+            ) : (
+              <MultiSelect
+                value={selectedLocations}
+                onChange={handleSelection}
+                options={europeanCapitals.features}
+                optionLabel="properties.capital"
+                optionValue="properties.iso_a3"
+                placeholder="Select Cities"
+                maxSelectedLabels={3}
+                className="w-full md:w-20rem"
+              />
+            )}
+          </div>
+        }
+        // center={
+
+        // }
+        right={
+          <div className="flex flex-wrap align-items-center gap-3">
             <DateBox
               defaultValue={momentDateToString(
                 rootStore.headerControls.beginDate
@@ -195,36 +226,20 @@ export const ControlHeader = observer(() => {
               )}
               onChange={(e) => onDateChange(e, "endDate")}
             />
-            <div className="flex items-center gap-4">
-              {/* Left Label */}
-              <label
-                className={`text-sm ${rootStore.headerControls.viewMode === "hourly" ? "font-bold text-blue-600" : "text-gray-500"}`}
-              >
-                Hourly
-              </label>
-              {/* Switch */}
-              <InputSwitch
-                checked={!!(rootStore.headerControls.viewMode === "daily")}
-                // trueValue={"daily"}
-                // falseValue={"hourly"}
-                onChange={(e) => {
-                  console.log(e);
-                  const viewMode = e.value ? "daily" : "hourly";
-                  rootStore.setHeaderControls({
-                    viewMode,
-                  });
-                }}
-                className="relative block outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              {/* Right Label */}
-              <label
-                className={`text-sm ${rootStore.headerControls.viewMode === "daily" ? "font-bold text-blue-600" : "text-gray-500"}`}
-              >
-                Daily
-              </label>
-            </div>{" "}
-            <Button onClick={handleBtnClick}>Refresh</Button>
+            <div className="flex items-center gap-4"></div>{" "}
+            <Button className={'bg-slate-50 px-2'}onClick={handleBtnClick}>Refresh</Button>
           </div>
+        }
+      ></Toolbar>
+      <Toolbar
+      className="p-3"
+        right={
+          <SelectButton
+            value={rootStore.headerControls.viewMode}
+            onChange={(e) => rootStore.setHeaderControls({ viewMode: e.value })}
+            optionLabel="name"
+            options={intervalOptions}
+          />
         }
       ></Toolbar>
     </div>

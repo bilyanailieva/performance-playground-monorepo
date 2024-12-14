@@ -10,7 +10,7 @@ import { fetchCity } from "../helper/LocationHelper";
 type ControlHeaderSettings = {
   beginDate: moment.Moment;
   endDate: moment.Moment;
-  viewMode: 'daily' | 'hourly'
+  viewMode: 'daily' | 'hourly' | 'monthly' | 'auto'
 };
 
 export type UserLocation = {
@@ -31,7 +31,7 @@ export default class RootStore {
   private _controlHeaderState: ControlHeaderSettings = {
     beginDate: this.defaultBegin,
     endDate: this.defaultEnd,
-    viewMode: 'daily'
+    viewMode: 'auto'
   };
   private _selectedLocation: UserLocation | undefined = undefined;
 
@@ -194,6 +194,10 @@ export default class RootStore {
   public setApiData(data: any) {
     this._apiData = data;
   }
+
+  public currentTimeRangeInDays() {
+    return this._controlHeaderState.endDate.diff(this._controlHeaderState.beginDate, 'days');
+  }
 }
 
 export type CityInfo = {
@@ -203,3 +207,5 @@ export type CityInfo = {
   capital?: string;
   timezone?: string;
 };
+
+

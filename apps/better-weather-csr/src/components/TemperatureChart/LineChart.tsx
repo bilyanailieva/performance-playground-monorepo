@@ -9,6 +9,7 @@ type LineChartProps = {
   cityColors: string[];
   location?: UserLocation;
   field?: string;
+  viewMode: 'hourly' | 'daily' | 'monthly' | 'auto'
 };
 
 export const options = {
@@ -39,10 +40,11 @@ const LineChart = (props: LineChartProps) => {
       props.chartData,
       props.cityColors,
       props.location,
-      props.field
+      props.field,
+      props.viewMode
     );
     setChartData(finalData);
-  }, [props.chartData]);
+  }, [props.chartData, props.viewMode]);
   return chartData?.datasets?.length ? (
     <Chart
       className="w-full h-full relative flex-grow"

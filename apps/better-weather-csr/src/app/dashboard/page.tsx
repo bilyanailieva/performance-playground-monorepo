@@ -21,8 +21,10 @@ const DashboardContainer = observer(() => {
       const { weatherData, tableData, colors } = generateDashboardData(
         rootStore.apiData,
         rootStore.openMeteoParams(),
-        rootStore.selectedLocation
+        rootStore.headerControls.viewMode,
+        rootStore.selectedLocation,
       );
+      console.log(weatherData);
       if (!weatherData) {
         throw new Error("Network response was not ok");
       }
@@ -36,7 +38,8 @@ const DashboardContainer = observer(() => {
     }
     setIsLoading(false);
   }, [
-    rootStore.apiData
+    rootStore.apiData,
+    rootStore.headerControls.viewMode
   ]);
 
   if (isLoading) {
@@ -73,6 +76,7 @@ const DashboardContainer = observer(() => {
               cityColors={colors}
               location={rootStore.selectedLocation}
               field="minMax"
+              viewMode={rootStore.headerControls.viewMode}
             />
           </div>
         </div>

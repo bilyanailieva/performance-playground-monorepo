@@ -8,7 +8,8 @@ export default {
     flowbite.content()
   ],
   theme: {
-    extend: {},
+    extend: {
+    },
   },
   plugins: [require("daisyui"), flowbite.plugin()],
   daisyui: {
