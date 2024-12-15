@@ -3,6 +3,7 @@ import { UserLocation } from "@/stores/RootStore";
 import { calculateMean, chooseInterval } from "@/utils/ChartHelpers";
 import { intervalToDateFormat } from "@/utils/FormatDate";
 import { getTimestepsByTimeRange } from "@/utils/WeatherInfoHelpers";
+import { time } from "console";
 import moment, { Moment } from "moment";
 
 export const generateLineChartData = (
@@ -21,6 +22,7 @@ export const generateLineChartData = (
     if(interval === 'auto') {
       interval = chooseInterval(apiData[0].timeRange);
     }
+    console.log(interval);
     // if (interval === "monthly") {
     //   data = getMonthlyLineData(apiData, cityColors);
     // } else if (field === "minMax") {
@@ -79,6 +81,7 @@ const getDailyLineData = (
   location?: UserLocation
 ) => {
   const timesteps = getTimestepsByTimeRange(apiData[0].timeRange, viewMode);
+  console.log(timesteps);
   const format = intervalToDateFormat(viewMode);
   console.log(viewMode);
   const finalData: any[] = [];

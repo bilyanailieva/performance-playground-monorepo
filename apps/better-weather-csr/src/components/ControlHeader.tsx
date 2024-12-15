@@ -47,7 +47,7 @@ export const ControlHeader = observer(() => {
     },
     {
       name: "Monthly",
-      value: "montly",
+      value: "monthly",
       disabled: rootStore.currentTimeRangeInDays() < 90
     },
   ];
