@@ -8,7 +8,7 @@ import {
   WeatherParams,
   fetchCurrentDataForCity,
 } from "@/service/OpenMeteoService";
-import { IconSun } from "@tabler/icons-react";
+import { IconCloud, IconSun } from "@tabler/icons-react";
 import { observer } from "mobx-react-lite";
 
 const CurrentWeatherCard = observer(() => {
@@ -43,6 +43,7 @@ const CurrentWeatherCard = observer(() => {
         current: [
           WeatherParams.temperature_2m,
           WeatherParams.apparent_temperature,
+          WeatherParams.weather_code,
         ],
         timezone: location?.location?.timezone ?? "Europe/Sofia",
       };
@@ -62,12 +63,13 @@ const CurrentWeatherCard = observer(() => {
     return null;
   }
 
-  const { temperature2m, apparentTemperature } = weatherData.current;
+  const { temperature2m, weatherCode, apparentTemperature } =
+    weatherData.current;
 
   return (
     <div className={styles.weatherCard}>
       <h2>{location?.name}</h2>
-      <IconSun stroke="2" width={60} height={60} />
+      {weatherCode.icon}
       <div>
         <p className="font-extrabold text-3xl">{temperature2m.toFixed()}°C</p>
         <p>Feels like {apparentTemperature.toFixed()}°C</p>

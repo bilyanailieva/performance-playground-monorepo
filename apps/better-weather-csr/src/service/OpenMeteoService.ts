@@ -5,6 +5,7 @@ import RootStore, { UserLocation } from "@/stores/RootStore";
 import { WeatherApiResponse } from "@openmeteo/sdk/weather-api-response";
 import axios from "axios";
 import { momentDateToString } from "@/utils/FormatDate";
+import { weatherCodeMap } from "@/constants/WeatherCodeMap";
 
 export enum WeatherParams {
   "temperature_2m" = "temperature_2m",
@@ -34,6 +35,10 @@ export type CurrentWeatherData = {
     time: Date;
     temperature2m: number;
     apparentTemperature: number;
+    weatherCode: {
+      description: string;
+      icon: JSX.Element;
+  }; 
   };
 };
 
@@ -177,12 +182,14 @@ export const fetchCurrentDataForCity = async (
 
   const utcOffsetSeconds = response.utcOffsetSeconds();
 
+  console.log(current.variables(2)!.value())
   // Note: The order of weather variables in the URL query and the indices below need to match!
   const weatherData = {
     current: {
       time: new Date((Number(current.time()) + utcOffsetSeconds) * 1000),
       temperature2m: current.variables(0)!.value(),
       apparentTemperature: current.variables(1)!.value(),
+      weatherCode: weatherCodeMap[current.variables(2)!.value()!]
     },
   };
 
