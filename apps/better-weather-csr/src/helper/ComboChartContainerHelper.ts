@@ -3,6 +3,7 @@ import { calculateSum, chooseInterval } from "@/utils/ChartHelpers";
 import { getTimestepsByTimeRange } from "@/utils/WeatherInfoHelpers";
 import moment, { Moment } from "moment";
 import { europeanCapitals } from "./eu-countries-capitals.geo";
+import { intervalToDateFormat } from "@/utils/FormatDate";
 
 export const generateBasicLineChartData = (weatherData: any) => {
   const dataSets = weatherData.map((data: any, index: number) => {
@@ -22,21 +23,61 @@ export const generateBasicLineChartData = (weatherData: any) => {
   };
 };
 
-export const generateBarChartData = (apiData: any, cityColors: string[]) => {
-  let data: any = [];
+export const generateBarChartData = (
+  apiData: any,
+  cityColors: string[],
+  viewMode?: "hourly" | "daily" | "monthly" | "auto"
+) => {
   if (apiData.length) {
-    const interval = chooseInterval(apiData[0].timeRange);
-    if (interval === "month") {
-      data = getMonthlyData(apiData, cityColors);
-    } else if (interval === "day") {
-      data = getDailyData(apiData, cityColors);
+    let interval: "hourly" | "daily" | "monthly" | "auto" = "auto";
+    if (viewMode) {
+      interval = viewMode;
     }
+    if (interval === "auto") {
+      interval = chooseInterval(apiData[0].timeRange);
+    }
+
+    const timesteps = getTimestepsByTimeRange(apiData[0].timeRange, interval);
+    const format = intervalToDateFormat(interval);
+    const finalData: any[] = [];
+    apiData.forEach((cityInfo: any, index: number) => {
+      const entryData: any = {};
+      cityInfo.time.forEach((timestamp: Moment, index: number) => {
+        const day = moment(timestamp).startOf("hour").format(format);
+        if (!entryData[day]) {
+          entryData[day] = [];
+        }
+        const value = cityInfo.rain[index];
+        if (!isNaN(value)) {
+          entryData[day].push(value);
+        }
+      });
+      if (Object.keys(entryData).length) {
+        const entryFinal = Object.keys(entryData).map((month) =>
+          calculateSum(entryData[month])
+        );
+        const cityName = europeanCapitals.features.find(
+          (feature) =>
+            feature.properties.latitude?.toFixed(2) ===
+              cityInfo.coords.latitude.toFixed(2) &&
+            feature.properties.longitude?.toFixed(2) ===
+              cityInfo.coords.longitude.toFixed(2)
+        );
+        finalData.push({
+          label: cityName?.properties.name,
+          data: entryFinal,
+          backgroundColor: cityColors[index],
+          borderColor: cityColors[index],
+        });
+      }
+    });
+    return { datasets: finalData, labels: timesteps };
   }
-  return data;
+  return {};
 };
 
 const getMonthlyData = (apiData: any, cityColors: string[]) => {
-  const timesteps = getTimestepsByTimeRange(apiData[0].timeRange, "month");
+  const timesteps = getTimestepsByTimeRange(apiData[0].timeRange, "monthly");
   const finalData: any[] = [];
   apiData.forEach((cityInfo: any, index: number) => {
     const entryData: any = {};
@@ -72,19 +113,24 @@ const getMonthlyData = (apiData: any, cityColors: string[]) => {
   return { datasets: finalData, labels: timesteps };
 };
 
-const getDailyData = (apiData: any, cityColors: string[]) => {
-  const timesteps = getTimestepsByTimeRange(apiData[0].timeRange, "day");
+const getDailyData = (
+  apiData: any,
+  cityColors: string[],
+  interval: "hourly" | "daily" | "monthly"
+) => {
+  const timesteps = getTimestepsByTimeRange(apiData[0].timeRange, interval);
+  const format = intervalToDateFormat(interval);
   const finalData: any[] = [];
   apiData.forEach((cityInfo: any, index: number) => {
     const entryData: any = {};
     cityInfo.time.forEach((timestamp: Moment, index: number) => {
-      const month = moment(timestamp).format("DD-MM-yy");
-      if (!entryData[month]) {
-        entryData[month] = [];
+      const day = moment(timestamp).startOf("hour").format(format);
+      if (!entryData[day]) {
+        entryData[day] = [];
       }
       const value = cityInfo.rain[index];
       if (!isNaN(value)) {
-        entryData[month].push(value);
+        entryData[day].push(value);
       }
     });
     if (Object.keys(entryData).length) {
