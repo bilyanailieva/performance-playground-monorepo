@@ -28,12 +28,13 @@ const ComboChartPage = observer(() => {
   const [colors, setColors] = useState<string[]>([]);
 
   useMemo(() => {
-    console.log('ROOTSTORE API DATA', rootStore.apiData)
+    console.log("ROOTSTORE API DATA", rootStore.apiData);
     if (rootStore?.apiData?.length) {
       const start = performance.now();
       const { weatherData, tableData, colors } = generateComboChartData(
         rootStore.apiData,
-        rootStore.openMeteoParams() );
+        rootStore.openMeteoParams()
+      );
       if (!weatherData) {
         throw new Error("Network response was not ok");
       }
@@ -43,7 +44,7 @@ const ComboChartPage = observer(() => {
       const end = performance.now();
       console.log(`${end - start} ms to generate data`);
     } else {
-      console.log('HEHEHEHEHEH')
+      console.log("HEHEHEHEHEH");
       setColors([]);
       setChartData([]);
       setTableData([]);
@@ -88,7 +89,12 @@ const ComboChartPage = observer(() => {
           id="current-weather-card"
           className="rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative h-full p-3"
         >
-          <LineChart chartData={chartData} cityColors={colors} />
+          <LineChart
+            chartData={chartData}
+            cityColors={colors}
+            // field="minMax"
+            viewMode={rootStore.headerControls.viewMode}
+          />
         </div>
         <div
           id="card-bottom-right"
