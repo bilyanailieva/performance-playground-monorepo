@@ -150,15 +150,35 @@ const getDailyMeanLineData = (apiData: any, cityColors: string[]) => {
         feature.properties.longitude?.toFixed(2) ===
           cityInfo.coords.longitude.toFixed(2)
     );
+    const getSegmentColor = (ctx: any) => {
+      const { p0, p1 } = ctx;
+      const point = p1.parsed.y;
+      if (point < -10) return "darkblue";
+      if (point >= -10 && point < 5) return "lightblue";
+      if (point >= 5 && point < 22) return "green";
+      if (point >= 22 && point < 32) return "yellow";
+      if (point >= 32) return "red";
+      return "gray";
+    };
+
+    const cityColor = cityColors[0] || "gray";
     finalData.push({
-      label: cityName?.properties?.name ?? "Hello",
+      label: `${cityInfo.cityName || cityName|| `City ${1}`} - daily average`,
       data: entryFinal,
-      borderColor: cityColors[index],
-      pointBackgroundColor: cityColors[index],
-      fill: false,
-      tension: 1,
+      borderColor: cityColor,
+      pointBackgroundColor: cityColor,
+      pointRadius: 3,
+      borderWidth: 3,
       yAxisID: "yAxis",
       xAxisID: "xAxis",
+      elements: {
+        line: {
+          tension: 0.4,
+        },
+      },
+      segment: {
+        borderColor: getSegmentColor,
+      },
     });
   });
   return { datasets: finalData, labels: timesteps };

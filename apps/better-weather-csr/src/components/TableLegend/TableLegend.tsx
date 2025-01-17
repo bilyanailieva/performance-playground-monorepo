@@ -22,11 +22,11 @@ const TableLegend = (props: TableLegendProps) => {
   }, [props.tableData]);
 
   const tempTemplate = (entry: any, field: string) => {
-    return `${entry[field].toFixed(1)}°C`;
+    return `${entry[field]?.toFixed(1)}°C`;
   };
 
   const mmTemplate = (entry: any, field: string) => {
-    return `${entry[field].toFixed(1)}mm`;
+    return `${entry[field]?.toFixed(1)}mm`;
   };
 
   const colorTemplate = (color: string) => {

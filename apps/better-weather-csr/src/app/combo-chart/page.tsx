@@ -17,6 +17,7 @@ import { observer } from "mobx-react-lite";
 import dynamic from "next/dynamic";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { rootStoreContext } from "../layout";
+import TableLegend from "@/components/TableLegend/TableLegend";
 
 const ComboChartPage = observer(() => {
   const rootStore = useContext(rootStoreContext);
@@ -71,11 +72,13 @@ const ComboChartPage = observer(() => {
           id="card-left-full"
           className="rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative h-full p-3 overflow-hidden"
         >
-          <DetailsTableLegend
+          {/* {rootStore.currentTimeRangeInDays() > 365 ?  */}
+          <TableLegend tableData={tableData} cityColors={colors}/>
+           {/* : <DetailsTableLegend
             tableData={tableData}
             // cityColors={colors}
             // onSelectionChange={handleTableUpdate}
-          />
+          />} */}
         </div>
         <div
           id="card-bottom-right"
@@ -100,7 +103,7 @@ const ComboChartPage = observer(() => {
           id="card-bottom-right"
           className="rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative h-full p-3"
         >
-          <BarChart apiData={chartData} cityColors={colors} />
+          <BarChart apiData={chartData} cityColors={colors} viewMode={rootStore.headerControls.viewMode}/>
         </div>
       </div>
     </div>

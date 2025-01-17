@@ -119,5 +119,10 @@ app.get("/history", async (req) => {
 });
 
 app.listen(8080, () => {
+  console.log("Initial Memory Usage:", process.memoryUsage());
+
+    setInterval(() => {
+      console.log("Memory Usage:", process.memoryUsage());
+    }, 5000);
   console.log("Elysia server is running on http://localhost:8080");
 });

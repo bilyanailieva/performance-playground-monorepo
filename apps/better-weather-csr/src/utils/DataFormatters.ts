@@ -13,6 +13,7 @@ export const generateComboChartData = (
   let chartData: any = [];
   let tableData: any[] = [];
   let colors: string[] = [];
+  console.log(apiData)
 
   if (!apiData.length) return { weatherData: chartData, tableData, colors };
   colors = generateColors(queryParams.longitude);
@@ -46,38 +47,57 @@ export const generateComboChartData = (
         feature.properties.longitude?.toFixed(2) ===
           weatherData.coords.longitude?.toFixed(2)
     );
+    const tableEntry: any = {
+      id: city?.properties?.iso_a3 ?? userLocation?.id,
+      cityName: city?.properties?.capital ?? userLocation?.name,
+      avgTemp: 0,
+      presipitationSum: 0,
+      minTemp: 0,
+      maxTemp: 0,
+      cloudCover: 0,
+      color: colors[index],
+    };
 
     const cityName = city?.properties?.capital ?? userLocation?.name ?? timezone;
     cityColumns.add(cityName);
 
+
     intervalEntries?.forEach((entry: any) => {
+
       weatherData.time.push(entry.timestamp);
       weatherData.temperature2m.push(entry.temperature_2m);
-      weatherData.rain.push(entry.rain);
+      weatherData.rain.push(entry.rain + entry.snowfall);
       weatherData.cloudCover.push(entry.cloudCover);
 
       // Push the transformed data for the nested table
-      let existingRow = tableData.find((row) => row.datetime === entry.timestamp);
+      // let existingRow = tableData.find((row) => row.datetime === entry.timestamp);
 
-      if (!existingRow) {
-        existingRow = {
-          datetime: entry.timestamp,
-          metrics: [
-            { metric: "Temperature", [cityName]: entry.temperature_2m },
-            { metric: "Cloud Cover", [cityName]: entry.cloudCover },
-            { metric: "Precipitation", [cityName]: entry.rain },
-          ],
-        };
-        tableData.push(existingRow);
-      } else {
-        existingRow.metrics.forEach((metricRow: any) => {
-          if (metricRow.metric === "Temperature") metricRow[cityName] = entry.temperature_2m;
-          if (metricRow.metric === "Cloud Cover") metricRow[cityName] = entry.cloudCover;
-          if (metricRow.metric === "Precipitation") metricRow[cityName] = entry.rain;
-        });
-      }
+      // if (!existingRow) {
+      //   existingRow = {
+      //     datetime: entry.timestamp,
+      //     metrics: [
+      //       { metric: "Temperature", [cityName]: entry.temperature_2m },
+      //       { metric: "Cloud Cover", [cityName]: entry.cloudCover },
+      //       { metric: "Precipitation", [cityName]: entry.rain },
+      //     ],
+      //   };
+      //   tableData.push(existingRow);
+      // } else {
+      //   existingRow.metrics.forEach((metricRow: any) => {
+      //     if (metricRow.metric === "Temperature") metricRow[cityName] = entry.temperature_2m;
+      //     if (metricRow.metric === "Cloud Cover") metricRow[cityName] = entry.cloudCover;
+      //     if (metricRow.metric === "Precipitation") metricRow[cityName] = entry.rain;
+      //   });
+      // }
     });
-
+    tableEntry.avgTemp = calculateMean(weatherData.temperature2m);
+    tableEntry.presipitationSum = weatherData.rain.reduce(
+      (accumulator: any, currentValue: any) => accumulator + currentValue,
+      0
+    );
+    tableEntry.minTemp = Math.min(...weatherData.temperature2m);
+    tableEntry.maxTemp = Math.max(...weatherData.temperature2m);
+tableData.push(tableEntry)
     chartData.push(weatherData);
   });
 

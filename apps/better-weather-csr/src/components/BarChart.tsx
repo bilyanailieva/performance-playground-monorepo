@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 type BarChartProps = {
   apiData: any;
   cityColors: string[];
+  viewMode: 'hourly' | 'daily' | 'monthly' | 'auto'
 };
 
 const chartOptions = {

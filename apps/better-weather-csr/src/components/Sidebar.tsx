@@ -85,7 +85,7 @@ export const Sidebar = observer(() => {
   return (
     <>
       <Menu
-        className="h-full flex justify-center items-center p-4 w-max gap-4"
+        className="flex-shrink-0 min-w-[25px] h-full flex justify-center items-center p-4 w-max gap-4"
         model={sidebarItems}
       />
       <Tooltip target=".p-menuitem-link" />

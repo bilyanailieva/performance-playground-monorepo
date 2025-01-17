@@ -47,7 +47,7 @@ export const generateBarChartData = (
         if (!entryData[day]) {
           entryData[day] = [];
         }
-        const value = cityInfo.rain[index];
+        const value = cityInfo.rain?.[index];
         if (!isNaN(value)) {
           entryData[day].push(value);
         }

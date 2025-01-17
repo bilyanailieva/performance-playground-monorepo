@@ -91,7 +91,7 @@ app.prepare().then(() => {
 
   const httpServer = createServer(server);
 
-  const PORT = 8080; // Updated port number
+  const PORT = 8081; // Updated port number
 
   httpServer.listen(PORT, () => {
     console.log(`Server ready on http://localhost:${PORT}`);

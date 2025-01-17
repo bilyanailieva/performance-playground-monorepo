@@ -51,6 +51,7 @@ const DetailsTableLegend = ({
         rowExpansionTemplate={(rowData) =>
           nestedTable(rowData.metrics, cityColumns)
         }
+        selectAll={true}
       >
         <Column
           selectionMode="multiple"

@@ -127,24 +127,14 @@ export const fetchHistoricalDataForMultipleCities = async (
   params: OpenMeteoParams
 ) => {
   try {
-    const responses = await axios.get("http://localhost:8080/history", {
-      params: params,
-      paramsSerializer: (params) => {
-        // Custom serializer to correctly handle array parameters
-        const qs = Object.keys(params)
-          .map((key) => {
-            const value = params[key];
-            return Array.isArray(value)
-              ? value.map((val) => `${key}=${val}`).join("&")
-              : `${key}=${value}`;
-          })
-          .join("&");
-        return qs;
-      },
+    const response = await axios.get("http://localhost:8080/history", {
+      params,
+      paramsSerializer: (params) => new URLSearchParams(params).toString(),
     });
-    return responses.data;
+
+    return response.data;
   } catch (e) {
-    console.error("Error during fetching historical data: ", e);
+    console.error("Error during fetching historical data:", e);
   }
 };
 

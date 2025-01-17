@@ -1,6 +1,6 @@
 "use client";
 import { observer } from "mobx-react-lite";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 
 import TableLegend from "@/components/TableLegend/TableLegend";
 import LineChart from "@/components/TemperatureChart/LineChart";
@@ -16,7 +16,7 @@ const DashboardContainer = observer(() => {
   const [tableData, setTableData] = useState<any[]>([]);
   const [colors, setColors] = useState<string[]>([]);
 
-  useEffect(() => {
+  useMemo(() => {
     if (rootStore?.apiData?.length) {
       const { weatherData, tableData, colors } = generateDashboardData(
         rootStore.apiData,
