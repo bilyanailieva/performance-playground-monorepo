@@ -1,5 +1,4 @@
 "use client";
-import { rootStoreContext } from "@/app/layout";
 import { europeanCapitals } from "@/helper/eu-countries-capitals.geo";
 import { IconSearch } from "@tabler/icons-react";
 import { observer } from "mobx-react-lite";
@@ -12,10 +11,15 @@ import { Toolbar } from "primereact/toolbar";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { getLocationByName } from "../helper/LocationHelper";
 import { DateBox } from "./Calendar";
+import { rootStoreContext } from "./RootStoreProvider";
 
 export const ControlHeaderSSR = observer(() => {
   const pathName = usePathname();
   const rootStore = useContext(rootStoreContext);
+  if (!rootStore) {
+    console.error("RootStore is not available.");
+    return <div>Unable to load data. Please try again later.</div>;
+  }
   const [val, setVal] = useState(rootStore.selectedLocation?.name ?? "");
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
 
@@ -70,13 +74,13 @@ export const ControlHeaderSSR = observer(() => {
     }
 
     if (rootStore.headerControls?.beginDate) {
-      params.set("beginDate", rootStore.headerControls?.beginDate);
+      params.set("beginDate", rootStore.headerControls?.beginDate.toString());
     } else {
       params.delete("beginDate");
     }
 
     if (rootStore.headerControls?.endDate) {
-      params.set("endDate", rootStore.headerControls?.endDate);
+      params.set("endDate", rootStore.headerControls?.endDate.toString());
     } else {
       params.delete("endDate");
     }
@@ -119,11 +123,11 @@ export const ControlHeaderSSR = observer(() => {
               )}
             </div>
             <DateBox
-              defaultValue={rootStore?.headerControls?.beginDate ?? ""}
+              defaultValue={rootStore?.headerControls?.beginDate.toString() ?? ""}
               onChange={(e) => onDateChange(e, "beginDate")}
             />
             <DateBox
-              defaultValue={rootStore.headerControls?.endDate ?? ""}
+              defaultValue={rootStore.headerControls?.endDate.toString() ?? ""}
               onChange={(e) => onDateChange(e, "endDate")}
             />
             <Button label="Load Data" onClick={handleLoad} />

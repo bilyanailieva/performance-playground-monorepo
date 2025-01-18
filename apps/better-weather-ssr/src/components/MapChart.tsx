@@ -6,10 +6,14 @@ import { useContext, useEffect, useState } from "react";
 import Plot from "react-plotly.js";
 import { processWeatherData } from "../helper/MapContainerHelper";
 import { europeanCapitals } from "../helper/eu-countries-capitals.geo"; // Replace with the path to your GeoJSON file
-import { rootStoreContext } from "@/app/layout";
+import { rootStoreContext } from "./RootStoreProvider";
 
 const MapChart = observer(() => {
   const rootStore = useContext(rootStoreContext);
+  if (!rootStore) {
+    console.error("RootStore is not available.");
+    return <div>Unable to load data. Please try again later.</div>;
+  }
   const [locations, setLocations] = useState([]);
   const [frames, setFrames] = useState<any>([]);
   const [steps, setSteps] = useState<any>([]);

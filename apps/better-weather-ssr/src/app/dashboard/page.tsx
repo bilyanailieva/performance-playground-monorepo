@@ -1,15 +1,21 @@
 "use client";
 import { observer } from "mobx-react-lite";
-import { useContext, useMemo, useState } from "react";
+import { Suspense, useContext, useMemo, useState } from "react";
 
 import TableLegend from "@/components/TableLegend/TableLegend";
 import LineChart from "@/components/TemperatureChart/LineChart";
 import { generateComboChartData, generateDashboardData } from "@/utils/DataFormatters";
-import { rootStoreContext } from "../layout";
 import CurrentWeatherCard from "@/components/CurrentWeatherCard/CurrentWeatherCard";
+import { rootStoreContext } from "@/components/RootStoreProvider";
+import CurrentWeatherCardServer from "@/components/CurrentWeatherCard/CurrentWeatherCardSSR";
+import WeatherCardWrapper from "@/components/CurrentWeatherCard/CurrentWeatherCardHelper";
 
 const DashboardContainer = observer(() => {
   const rootStore = useContext(rootStoreContext);
+  if (!rootStore) {
+    console.error("RootStore is not available.");
+    return <div>Unable to load data. Please try again later.</div>;
+  }
   const [isLoading, setIsLoading] = useState(true);
   const [error, _setError] = useState<any>(null);
   const [chartData, setChartData] = useState<any>({});
@@ -50,26 +56,37 @@ const DashboardContainer = observer(() => {
     return <div>Error: {error.message}</div>;
   }
 
-  return (
-    <div className="w-full h-full grid grid-cols-[100%_1fr] grid-rows-[100%_1fr]">
-      <div className="w-full h-full grid gap-4 grid-cols-3">
+  const location = rootStore.selectedLocation; // Get location from the MobX store
+
+  if (!location) {
+    return <div>Location not selected. Please select a location.</div>;
+  }
+
+  return location && (
+    <div className="min-h-full w-full h-full grid grid-cols-[100%_1fr] grid-rows-[100%_1fr]">
+      <div className="max-h-40 w-full h-full grid gap-4 grid-cols-3">
         <div
           id="card-left-full"
-          className="bg-white col-span-2 rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative p-3 overflow-hidden"
+          className="h-full bg-white col-span-2 rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative p-3 overflow-hidden"
         >
+          <Suspense fallback={<div>Loading Weather Data...</div>}>
           <TableLegend tableData={tableData} cityColors={colors} />
+          </Suspense>
         </div>
         <div
           id="current-weather-card"
-          className="bg-white rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative h-full p-3"
+          className=" g-white rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative h-full p-3"
         >
-          <CurrentWeatherCard />
+        <Suspense fallback={<div>Loading Weather Data...</div>}>
+            {/* Use the async Server Component */}
+          {WeatherCardWrapper({location: location})}
+        </Suspense>
         </div>
         <div className="grid col-span-3 row-span-2">
           {/* <div className="bg-white rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative p-3"></div> */}
           <div
             id="card-bottom-right"
-            className="bg-white rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative h-full p-3"
+            className="overflow-hidden bg-white rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative h-full p-3"
           >
             <LineChart
               chartData={chartData}

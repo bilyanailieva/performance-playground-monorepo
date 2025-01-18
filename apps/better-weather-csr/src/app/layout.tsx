@@ -8,6 +8,8 @@ import "primereact/resources/themes/lara-light-blue/theme.css";
 import { createContext, useEffect } from "react";
 import "./globals.css";
 import { getLocation } from "@/helper/LocationHelper";
+import { useCollectWebVitals } from "./hooks/useWebReportVitals";
+import { useReportWebVitals } from "next/web-vitals";
 
 const rootStore = new RootStore();
 export const rootStoreContext = createContext(rootStore);
@@ -17,6 +19,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   useEffect(() => {
     const fetchLocation = async () => {
       try {
@@ -46,6 +49,10 @@ export default function RootLayout({
 
     fetchLocation();
   }, []);
+
+    useReportWebVitals((metric: any) => {
+    console.log(metric);
+  });
   return (
     <html lang="en">
       <body>

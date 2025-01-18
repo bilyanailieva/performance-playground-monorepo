@@ -22,11 +22,12 @@ export const options = {
   maintainAspectRatio: false,
   normalized: true,
   spanGaps: true,
+  animation: false
 };
 
 const LineChart = (props: LineChartProps) => {
   const [chartData, setChartData] = useState<any>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!props.chartData || !props.cityColors.length) return;
@@ -40,28 +41,35 @@ const LineChart = (props: LineChartProps) => {
       props.viewMode
     );
     setChartData(finalData);
-    setIsLoaded(true);
+    setIsLoading(false);
   }, [props.chartData, props.cityColors, props.viewMode]);
 
-  return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center min-h-[300px]">
-      {!isLoaded ? (
-        // Skeleton loader prevents layout shift
-        <div className="w-full h-full bg-gray-200 animate-pulse min-h-[300px]" />
-      ) : chartData?.datasets?.length ? (
-        <div className="w-full h-full flex-grow">
-          <Chart
-            className="w-full h-full flex-grow"
-            type="line"
-            data={chartData}
-            options={options}
-            style={{ height: "100%", width: "100%" }} // Ensures full height
-          />
-        </div>
-      ) : (
-        <p className="text-center text-gray-500">No data available</p>
-      )}
+  return (<>
+  {isLoading ? (
+    // Skeleton loader with reserved dimensions
+    <div className="absolute inset-0 flex items-center justify-center bg-gray-200 min-h-[300px]">
+      <p className="animate-pulse text-gray-400">Loading...</p>
     </div>
+  ) : chartData?.datasets?.length ? (
+    <div className="relative w-full h-full flex flex-col items-center justify-center min-h-[300px]">
+
+    <div className="relative w-full h-full">
+      <Chart
+        className="w-full h-full"
+        type="line"
+        data={chartData}
+        options={options}
+      />
+    </div>
+    </div>
+  ) : (
+    // Fallback message with reserved dimensions
+    <div className="flex items-center justify-center w-full h-full min-h-[300px]">
+      <p className="text-center text-gray-500">No data available</p>
+    </div>
+  )}
+
+</>
   );
 };
 

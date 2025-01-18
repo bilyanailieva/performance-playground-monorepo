@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 type DateBoxProps = {
   onChange: (e: any) => void;
   defaultValue: string;
+  style: any
 };
 
 export const DateBox = (props: DateBoxProps) => {
@@ -23,6 +24,7 @@ export const DateBox = (props: DateBoxProps) => {
       className="p-calendar"
       value={new Date(date)}
       onChange={onChange}
+      style={props.style}
     />
   );
 };

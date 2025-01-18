@@ -39,7 +39,8 @@
     "react-feather": "^2.0.10",
     "react-places-autocomplete": "^7.3.0",
     "react-plotly.js": "^2.6.0",
-    "weather-api-response": "link:@openmeteo/sdk/weather-api-response"
+    "weather-api-response": "link:@openmeteo/sdk/weather-api-response",
+    "web-vitals": "^4.2.4"
   },
   "devDependencies": {
     "@types/node": "^20",

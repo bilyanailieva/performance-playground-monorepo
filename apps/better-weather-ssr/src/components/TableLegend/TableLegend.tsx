@@ -14,9 +14,9 @@ type TableLegendProps = {
 
 const TableLegend = (props: TableLegendProps) => {
   const [selection, setSelection] = useState<any>(props.tableData);
-  useReportWebVitals((metric: any) => {
-    console.log(metric);
-  });
+  // useReportWebVitals((metric: any) => {
+  //   console.log(metric);
+  // });
   useEffect(() => {
     setSelection(props.tableData);
   }, [props.tableData]);
@@ -39,7 +39,7 @@ const TableLegend = (props: TableLegendProps) => {
   };
 
   return props?.tableData?.length ? (
-    <div className="relative w-full h-full overflow-hidden">
+    <div className="m-w-24 min-h-full absolute w-full h-full overflow-hidden">
       {/* Following line is just for testing */}
       <Button label={'Test'} onClick={() => {}}/>
       <DataTable

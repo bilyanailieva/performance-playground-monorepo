@@ -1,6 +1,5 @@
 "use client";
 
-import { rootStoreContext } from "@/app/layout";
 import { NavigatorViews } from "@/constants/NavigatorViews";
 import {
   IconChartBar,
@@ -14,6 +13,7 @@ import { Menu } from "primereact/menu";
 import { MenuItem } from "primereact/menuitem";
 import { Tooltip } from "primereact/tooltip";
 import { useCallback, useContext, useEffect } from "react";
+import { rootStoreContext } from "./RootStoreProvider";
 
 const itemRenderer = (item: MenuItem, options: any, activeTab: string) => {
   return (
@@ -36,9 +36,15 @@ const itemRenderer = (item: MenuItem, options: any, activeTab: string) => {
 
 export const Sidebar = observer(() => {
   const rootStore = useContext(rootStoreContext);
+  if (!rootStore) {
+    console.error("RootStore is not available.");
+    return <div>Unable to load data. Please try again later.</div>;
+  }
   const { activeTab } = rootStore;
   const router = useRouter();
   const pathname = usePathname()
+
+  
 
   useEffect(() => {
     rootStore.setActiveTab(pathname as any);

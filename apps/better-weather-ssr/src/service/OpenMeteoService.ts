@@ -162,7 +162,7 @@ export const fetchForecastData = async (params: OpenMeteoParams) => {
 };
 
 export const fetchCurrentDataForCity = async (
-  params: OpenMeteoParams
+  params: any
 ): Promise<CurrentWeatherData> => {
   const url = "https://api.open-meteo.com/v1/forecast";
   const responses = await fetchWeatherApi(url, params);

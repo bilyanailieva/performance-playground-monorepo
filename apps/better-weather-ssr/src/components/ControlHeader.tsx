@@ -1,6 +1,5 @@
 "use client";
 
-import { rootStoreContext } from "@/app/layout";
 import { europeanCapitals } from "@/helper/eu-countries-capitals.geo";
 import { IconSearch } from "@tabler/icons-react";
 import { observer } from "mobx-react-lite";
@@ -18,9 +17,14 @@ import { Toast } from "primereact/toast";
 import { WeatherParams, fetchForecastData, fetchHistoricalDataForMultipleCities } from "@/service/OpenMeteoService";
 import { NavigatorViews } from "@/constants/NavigatorViews";
 import { SelectButton } from "primereact/selectbutton";
+import { rootStoreContext } from "./RootStoreProvider";
 
 export const ControlHeader = observer(() => {
   const rootStore = useContext(rootStoreContext);
+  if (!rootStore) {
+    console.error("RootStore is not available.");
+    return <div>Unable to load data. Please try again later.</div>;
+  }
   const [val, setVal] = useState(rootStore.selectedLocation?.name ?? "");
   const [selectedLocations, setSelectedLocations] = useState<any[]>([]);
   const pathName = usePathname();

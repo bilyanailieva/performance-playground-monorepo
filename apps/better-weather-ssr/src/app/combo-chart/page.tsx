@@ -16,11 +16,15 @@ import { generateComboChartData } from "@/utils/DataFormatters";
 import { observer } from "mobx-react-lite";
 import dynamic from "next/dynamic";
 import { useContext, useEffect, useMemo, useState } from "react";
-import { rootStoreContext } from "../layout";
 import TableLegend from "@/components/TableLegend/TableLegend";
+import { rootStoreContext } from "@/components/RootStoreProvider";
 
 const ComboChartPage = observer(() => {
   const rootStore = useContext(rootStoreContext);
+  if (!rootStore) {
+    console.error("RootStore is not available.");
+    return <div>Unable to load data. Please try again later.</div>;
+  }
   // const { selectedLocation, headerControls } = rootStore;
   const [isLoading, setIsLoading] = useState(true);
   // const [error, setError] = useState<any>(null);

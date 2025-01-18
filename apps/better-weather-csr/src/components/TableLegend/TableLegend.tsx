@@ -14,9 +14,9 @@ type TableLegendProps = {
 
 const TableLegend = (props: TableLegendProps) => {
   const [selection, setSelection] = useState<any>(props.tableData);
-  useReportWebVitals((metric: any) => {
-    console.log(metric);
-  });
+  // useReportWebVitals((metric: any) => {
+  //   console.log(metric);
+  // });
   useEffect(() => {
     setSelection(props.tableData);
   }, [props.tableData]);

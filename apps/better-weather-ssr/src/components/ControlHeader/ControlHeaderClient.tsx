@@ -1,6 +1,5 @@
 "use client";
 
-import { rootStoreContext } from "@/app/layout";
 import { europeanCapitals } from "@/helper/eu-countries-capitals.geo";
 import { IconSearch } from "@tabler/icons-react";
 import { observer } from "mobx-react-lite";
@@ -11,18 +10,26 @@ import { InputText } from "primereact/inputtext";
 import { MultiSelect } from "primereact/multiselect";
 import { Toolbar } from "primereact/toolbar";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { getLocationByName } from "../helper/LocationHelper";
-import { DateBox } from "./Calendar";
 import { momentDateToString } from "@/utils/FormatDate";
 import { Toast } from "primereact/toast";
 import { WeatherParams, fetchForecastData, fetchHistoricalDataForMultipleCities } from "@/service/OpenMeteoService";
 import { NavigatorViews } from "@/constants/NavigatorViews";
 import { SelectButton } from "primereact/selectbutton";
+import { rootStoreContext } from "../RootStoreProvider";
+import { DateBox } from "../Calendar";
 
-export const ControlHeader = observer(() => {
+export const ControlHeaderClient = observer(({ preloadedData }: { preloadedData: any }) => {
   const rootStore = useContext(rootStoreContext);
+
+  if (!rootStore) {
+    console.error("RootStore is not available.");
+    return <div>Unable to load data. Please try again later.</div>;
+  }
   const [val, setVal] = useState(rootStore.selectedLocation?.name ?? "");
   const [selectedLocations, setSelectedLocations] = useState<any[]>([]);
+  const [interval, setInterval] = useState(preloadedData.defaultInterval);
+  const [beginDate, setBeginDate] = useState(preloadedData.beginDate);
+  const [endDate, setEndDate] = useState(preloadedData.endDate);
   const pathName = usePathname();
   const toast = useRef<Toast>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -38,10 +45,6 @@ export const ControlHeader = observer(() => {
   useEffect(() => {
     setIsLoaded(true);
   }, []);
-
-  useEffect(() => {
-    setVal(rootStore.selectedLocation?.name ?? '');
-  }, [rootStore.selectedLocation])
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -97,76 +100,99 @@ export const ControlHeader = observer(() => {
 
   if (!isLoaded) return <div className="h-16 bg-blue-500 opacity-0"></div>;
 
-  return val ? (
+  return (
     <div className="min-h-[60px] w-full">
-      <Toast ref={toast} />
-      <Toolbar className="p-3 bg-blue-500 rounded-none w-full min-h-[60px] flex items-center justify-between"
-        left={
-          <div className="card flex justify-start">
-            {pathName === "/dashboard" ? (
-              <div className="p-inputgroup">
-                <InputText
-                  value={val}
-                  onClick={() => setVal("")}
-                  onChange={(e) => setVal(e.target.value)}
-                  placeholder="Search..."
-                  className="h-10 flex-grow p-2 border border-solid border-black rounded-none"
-                />
-                <Button
-                  icon={<IconSearch stroke={2} />}
-                  className="p-button-info bg-white border border-solid border-black border-l-0"
-                  onClick={handleBtnClick}
-                />
-              </div>
-            ) : (
-              <MultiSelect
-                value={selectedLocations}
-                onChange={(e) => {
-                  rootStore.selectedCities(e.value);
-                  setSelectedLocations(e.value);
-                }}
-                options={europeanCapitals.features}
-                optionLabel="properties.capital"
-                optionValue="properties.iso_a3"
-                placeholder="Select Cities"
-                maxSelectedLabels={3}
-                className="w-full h-10"
-              />
-            )}
-          </div>
-        }
-        right={
-          <div className="flex flex-wrap items-center gap-3">
-            <DateBox
-              defaultValue={momentDateToString(rootStore.headerControls.beginDate)}
-              onChange={(e) => rootStore.setHeaderControls({ beginDate: moment(e.value) })}
+  {/* Reserve space for Toast */}
+  {/* <div className="min-h-[60px]"> */}
+    <Toast ref={toast} />
+  {/* </div> */}
+
+  {/* Main Toolbar */}
+  <Toolbar
+    className="p-3 bg-blue-500 rounded-none w-full min-h-[60px] flex items-center justify-between"
+    left={
+      <div className="card flex justify-start">
+        {pathName === "/dashboard" ? (
+          <div className="p-inputgroup">
+            {/* InputText with reserved dimensions */}
+            <InputText
+              value={val}
+              onClick={() => setVal("")}
+              onChange={(e) => setVal(e.target.value)}
+              placeholder="Search..."
+              className="h-10 flex-grow p-2 border border-solid border-black rounded-none"
+              style={{ minWidth: "150px" }}
             />
-            <DateBox
-              defaultValue={momentDateToString(rootStore.headerControls.endDate)}
-              onChange={(e) => rootStore.setHeaderControls({ endDate: moment(e.value) })}
+            {/* Button with fixed dimensions */}
+            <Button
+              icon={<IconSearch stroke={2} />}
+              className="p-button-info bg-white border border-solid border-black border-l-0"
+              onClick={handleBtnClick}
+              style={{ width: "40px", height: "40px" }}
             />
-            <Button className="bg-slate-50 px-2" onClick={handleBtnClick}>
-              Refresh
-            </Button>
           </div>
-        }
-      ></Toolbar>
-      <Toolbar 
-        className="p-3 flex items-center"
-        left={
-          <span className="font-semibold text-white">Time Interval:</span>
-        }
-        right={
-          <SelectButton
-            value={rootStore.headerControls.viewMode}
-            onChange={(e) => rootStore.setHeaderControls({ viewMode: e.value })}
-            optionLabel="name"
-            options={intervalOptions}
+        ) : (
+          <MultiSelect
+            value={selectedLocations}
+            onChange={(e) => {
+              rootStore.selectedCities(e.value);
+              setSelectedLocations(e.value);
+            }}
+            options={europeanCapitals.features}
+            optionLabel="properties.capital"
+            optionValue="properties.iso_a3"
+            placeholder="Select Cities"
+            maxSelectedLabels={3}
+            className="w-full h-10"
+            style={{ minWidth: "200px" }}
           />
-        }
-      ></Toolbar>
-    </div>
-  ) : <></>;
+        )}
+      </div>
+    }
+    right={
+      <div className="flex flex-wrap items-center gap-3">
+        {/* DateBox Components with reserved space */}
+        <DateBox
+          defaultValue={momentDateToString(moment(beginDate) ?? rootStore.headerControls.beginDate)}
+          onChange={(e) => rootStore.setHeaderControls({ beginDate: moment(e.value) })}
+          style={{ width: "150px", height: "40px" }}
+        />
+        <DateBox
+          defaultValue={momentDateToString(moment(endDate) ?? rootStore.headerControls.endDate)}
+          onChange={(e) => rootStore.setHeaderControls({ endDate: moment(e.value) })}
+          style={{ width: "150px", height: "40px" }}
+        />
+        {/* Refresh Button with reserved dimensions */}
+        <Button
+          className="bg-slate-50 px-2"
+          onClick={handleBtnClick}
+          style={{ width: "80px", height: "40px" }}
+        >
+          Refresh
+        </Button>
+      </div>
+    }
+  />
+
+  {/* Secondary Toolbar */}
+  <Toolbar
+    className="p-3 flex items-center min-h-[60px]"
+    left={
+      <span className="font-semibold text-white">Time Interval:</span>
+    }
+    right={
+      <SelectButton
+        value={interval ?? rootStore.headerControls.viewMode}
+        onChange={(e) => rootStore.setHeaderControls({ viewMode: e.value })}
+        optionLabel="name"
+        options={intervalOptions}
+        style={{ minWidth: "200px" }}
+      />
+    }
+  />
+</div>
+
+  );
 });
 
-export default ControlHeader;
+export default ControlHeaderClient;

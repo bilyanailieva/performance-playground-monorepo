@@ -1,6 +1,7 @@
 "use client";
 
 import { Profiler } from "react";
+import { useCollectWebVitals } from "../hooks/useWebReportVitals";
 
 export default function DashboardLayout({
   children,
