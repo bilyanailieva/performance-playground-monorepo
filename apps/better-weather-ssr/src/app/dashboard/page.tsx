@@ -1,104 +1,28 @@
 "use client";
-import { observer } from "mobx-react-lite";
-import { Suspense, useContext, useMemo, useState } from "react";
-
-import TableLegend from "@/components/TableLegend/TableLegend";
-import LineChart from "@/components/TemperatureChart/LineChart";
-import { generateComboChartData, generateDashboardData } from "@/utils/DataFormatters";
-import CurrentWeatherCard from "@/components/CurrentWeatherCard/CurrentWeatherCard";
+import DashboardContainerWrapper from "@/components/DashboardContainerWrapper";
 import { rootStoreContext } from "@/components/RootStoreProvider";
-import CurrentWeatherCardServer from "@/components/CurrentWeatherCard/CurrentWeatherCardSSR";
-import WeatherCardWrapper from "@/components/CurrentWeatherCard/CurrentWeatherCardHelper";
+import { observer } from "mobx-react-lite";
+import { useContext } from "react";
 
 const DashboardContainer = observer(() => {
   const rootStore = useContext(rootStoreContext);
+
   if (!rootStore) {
     console.error("RootStore is not available.");
     return <div>Unable to load data. Please try again later.</div>;
   }
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, _setError] = useState<any>(null);
-  const [chartData, setChartData] = useState<any>({});
-  const [tableData, setTableData] = useState<any[]>([]);
-  const [colors, setColors] = useState<string[]>([]);
 
-  useMemo(() => {
-    if (rootStore?.apiData?.length) {
-      const { weatherData, tableData, colors } = generateDashboardData(
-        rootStore.apiData,
-        rootStore.openMeteoParams(),
-        rootStore.headerControls.viewMode,
-        rootStore.selectedLocation,
-      );
-      console.log(weatherData);
-      if (!weatherData) {
-        throw new Error("Network response was not ok");
-      }
-      setColors(colors);
-      setChartData(weatherData);
-      setTableData(tableData);
-    } else {
-      setColors([]);
-      setChartData([]);
-      setTableData([]);
-    }
-    setIsLoading(false);
-  }, [
-    rootStore.apiData,
-    rootStore.headerControls.viewMode
-  ]);
-
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (!rootStore.selectedLocation?.location) {
+    return <div>Location data is missing. Please select a location.</div>;
   }
 
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
-
-  const location = rootStore.selectedLocation; // Get location from the MobX store
-
-  if (!location) {
-    return <div>Location not selected. Please select a location.</div>;
-  }
-
-  return location && (
-    <div className="min-h-full w-full h-full grid grid-cols-[100%_1fr] grid-rows-[100%_1fr]">
-      <div className="max-h-40 w-full h-full grid gap-4 grid-cols-3">
-        <div
-          id="card-left-full"
-          className="h-full bg-white col-span-2 rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative p-3 overflow-hidden"
-        >
-          <Suspense fallback={<div>Loading Weather Data...</div>}>
-          <TableLegend tableData={tableData} cityColors={colors} />
-          </Suspense>
-        </div>
-        <div
-          id="current-weather-card"
-          className=" g-white rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative h-full p-3"
-        >
-        <Suspense fallback={<div>Loading Weather Data...</div>}>
-            {/* Use the async Server Component */}
-          {WeatherCardWrapper({location: location})}
-        </Suspense>
-        </div>
-        <div className="grid col-span-3 row-span-2">
-          {/* <div className="bg-white rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative p-3"></div> */}
-          <div
-            id="card-bottom-right"
-            className="overflow-hidden bg-white rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative h-full p-3"
-          >
-            <LineChart
-              chartData={chartData}
-              cityColors={colors}
-              location={rootStore.selectedLocation}
-              field="minMax"
-              viewMode={rootStore.headerControls.viewMode}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+  // Pass props to the DashboardContainerWrapper as a React component
+  return (
+    <DashboardContainerWrapper
+      beginDate={rootStore.headerControls.beginDate}
+      endDate={rootStore.headerControls.endDate}
+      selectedLocation={rootStore.selectedLocation}
+    />
   );
 });
 

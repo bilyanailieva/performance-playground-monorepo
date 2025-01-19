@@ -13,7 +13,6 @@ export const generateComboChartData = (
   let chartData: any = [];
   let tableData: any[] = [];
   let colors: string[] = [];
-  console.log(apiData)
 
   if (!apiData.length) return { weatherData: chartData, tableData, colors };
   colors = generateColors(queryParams.longitude);
@@ -115,7 +114,6 @@ export const generateDashboardData = (
   let chartData: any = [];
   let tableData: any[] = [];
   let colors: string[] = [];
-  console.log(viewMode);
 
   if (!apiData.length) return { weatherData: chartData, tableData, colors };
   colors = generateColors(queryParams.longitude);

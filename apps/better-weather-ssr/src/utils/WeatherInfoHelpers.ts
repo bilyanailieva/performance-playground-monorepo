@@ -7,7 +7,6 @@ export const getTimestepsByTimeRange = (
   },
   interval: "monthly" | "daily" | 'hourly' | 'auto'
 ) => {
-  console.log(timeRange);
   const startDate = moment(timeRange.beginDate);
   const endDate = moment(timeRange.endDate);
 
@@ -27,6 +26,5 @@ export const getTimestepsByTimeRange = (
     }
   }
 
-  console.log(timestepArray)
   return timestepArray;
 };

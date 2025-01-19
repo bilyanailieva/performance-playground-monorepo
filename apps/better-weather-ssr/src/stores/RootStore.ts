@@ -44,7 +44,6 @@ export default class RootStore {
   }
 
   setHeaderControls(updates: Partial<ControlHeaderSettings>) {
-    console.log(updates);
     this._controlHeaderState = {
       ...this._controlHeaderState,
       ...updates,
@@ -82,7 +81,6 @@ export default class RootStore {
               Intl.DateTimeFormat().resolvedOptions().timeZone;
             const { latitude, longitude } = position.coords;
             const city = await fetchCity(latitude, longitude);
-            console.log(city);
             this._selectedLocation = {
               name: city.display_name,
               id: city.osm_id,
@@ -142,7 +140,6 @@ export default class RootStore {
           latutudes.push(item.properties.latitude);
         }
       });
-    console.log(selectedCities);
     this._selectedCitiesInfo = selectedCities;
     this._selectedLatitudes = latutudes;
     this._selectedLongitudes = longitudes;

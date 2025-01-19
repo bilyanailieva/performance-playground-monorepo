@@ -63,7 +63,6 @@ const DetailsTableLegend = ({
           field="datetime"
           header="Datetime"
           body={(entry) => {
-            console.log(entry);
             return momentDateToDateTimeString(moment(entry.datetime));
           }}
         />

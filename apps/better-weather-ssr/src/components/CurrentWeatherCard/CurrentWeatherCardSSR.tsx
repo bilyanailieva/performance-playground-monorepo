@@ -4,17 +4,15 @@ import CurrentWeatherCardClient from "./CurrentWeatherCard";
 async function fetchWeatherData(location: any): Promise<CurrentWeatherData | null> {
   if (!location) return null;
 
-  console.log(location);
-
   const params = {
-    latitude: location.location.latitude,
-    longitude: location.location.longitute,
+    latitude: location?.location?.latitude,
+    longitude: location?.location?.longitute,
     current: [
       WeatherParams.temperature_2m,
       WeatherParams.apparent_temperature,
       WeatherParams.weather_code,
     ],
-    timezone: location.location.timezone ?? "Europe/Sofia",
+    timezone: location?.location?.timezone ?? "Europe/Sofia",
   };
 
   try {
@@ -27,6 +25,7 @@ async function fetchWeatherData(location: any): Promise<CurrentWeatherData | nul
 }
 
 export default async function CurrentWeatherCardServer({ location }: { location: any }) {
+  if(!location) return;
   const weatherData = await fetchWeatherData(location);
 
   return (

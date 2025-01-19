@@ -172,7 +172,6 @@ export const fetchCurrentDataForCity = async (
 
   const utcOffsetSeconds = response.utcOffsetSeconds();
 
-  console.log(current.variables(2)!.value())
   // Note: The order of weather variables in the URL query and the indices below need to match!
   const weatherData = {
     current: {
@@ -231,9 +230,7 @@ export const fetchHistoricalData = async (
 export const getForecastDataParams = async (rootStore: RootStore) => {
   let userLocation: UserLocation | undefined = undefined;
   const cachedLocation = localStorage.getItem("location");
-  console.log(localStorage.getItem("location"));
   if (cachedLocation) {
-    console.log(JSON.parse(cachedLocation));
     userLocation = JSON.parse(cachedLocation);
   } else {
     const location = rootStore.userLocation();

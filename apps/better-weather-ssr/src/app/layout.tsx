@@ -1,12 +1,14 @@
 // src/app/layout.tsx
 import ControlHeaderServer from "@/components/ControlHeader/ControlHeaderSSR";
-import Sidebar from "@/components/Sidebar";
 import RootStoreProvider from "@/components/RootStoreProvider";
 import "primereact/resources/themes/lara-light-blue/theme.css";
 import "./globals.css";
 import RootStore from "@/stores/RootStore";
 import { getLocation } from "@/helper/LocationHelper";
 import { useCollectWebVitals } from "@/hooks/useWebReportVitals";
+import dynamic from "next/dynamic";
+import ControlHeaderClient from "@/components/ControlHeader/ControlHeaderClient";
+const Sidebar = dynamic(() => import("@/components/Sidebar"), { ssr: false });
 
 export function reportWebVitals(metric: any) {
   console.log(metric); // Log metrics to the console
@@ -59,19 +61,20 @@ async function fetchUserLocation() {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const userLocation = await fetchUserLocation(); // Fetch the user location server-side
-
+  
   return (
     <html lang="en">
       <body>
         {/* Wrap the layout in the RootStoreProvider */}
         <RootStoreProvider userLocation={userLocation}>
           <div className="fixed flex flex-col top-0 left-0 h-screen w-screen">
+            <div>Hello</div>
             {/* Use the Server Component */}
-            {await ControlHeaderServer()}
+            <ControlHeaderClient  />
             <div className="flex w-full h-full items-center flex-grow p-5">
               <Sidebar />
               <div className="divider divider-horizontal"></div>
-              <div className="min-w-80 min-h-80 w-full h-full relative">{children}</div>
+              <div className="min-w-full min-h-full w-full h-full relative">{children}</div>
             </div>
           </div>
         </RootStoreProvider>

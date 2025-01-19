@@ -96,12 +96,6 @@ app.prepare().then(() => {
   httpServer.listen(PORT, () => {
     console.log(`Server ready on http://localhost:${PORT}`);
   });
-
-  console.log("Initial Memory Usage:", process.memoryUsage());
-
-    setInterval(() => {
-      console.log("Memory Usage:", process.memoryUsage());
-    }, 5000);
 });
 
 export const GET = app.handle;

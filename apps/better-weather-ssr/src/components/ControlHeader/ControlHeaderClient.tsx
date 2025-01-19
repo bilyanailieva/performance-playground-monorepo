@@ -18,7 +18,7 @@ import { SelectButton } from "primereact/selectbutton";
 import { rootStoreContext } from "../RootStoreProvider";
 import { DateBox } from "../Calendar";
 
-export const ControlHeaderClient = observer(({ preloadedData }: { preloadedData: any }) => {
+export const ControlHeaderClient = observer(() => {
   const rootStore = useContext(rootStoreContext);
 
   if (!rootStore) {
@@ -27,9 +27,9 @@ export const ControlHeaderClient = observer(({ preloadedData }: { preloadedData:
   }
   const [val, setVal] = useState(rootStore.selectedLocation?.name ?? "");
   const [selectedLocations, setSelectedLocations] = useState<any[]>([]);
-  const [interval, setInterval] = useState(preloadedData.defaultInterval);
-  const [beginDate, setBeginDate] = useState(preloadedData.beginDate);
-  const [endDate, setEndDate] = useState(preloadedData.endDate);
+  // const [interval, setInterval] = useState(preloadedData.defaultInterval);
+  // const [beginDate, setBeginDate] = useState(preloadedData.beginDate);
+  // const [endDate, setEndDate] = useState(preloadedData.endDate);
   const pathName = usePathname();
   const toast = useRef<Toast>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -41,13 +41,13 @@ export const ControlHeaderClient = observer(({ preloadedData }: { preloadedData:
     { name: "Monthly", value: "monthly", disabled: rootStore.currentTimeRangeInDays() < 90 }
   ];
 
-  // Ensure styles are applied before rendering
-  useEffect(() => {
-    setIsLoaded(true);
-  }, []);
+  // // Ensure styles are applied before rendering
+  // useEffect(() => {
+  //   setIsLoaded(true);
+  // }, []);
 
   useEffect(() => {
-    if (!isLoaded) return;
+
     const existingOption = europeanCapitals.features.find(
       (feature: any) => feature.properties.capital === rootStore.selectedLocation?.name
     );
@@ -65,11 +65,11 @@ export const ControlHeaderClient = observer(({ preloadedData }: { preloadedData:
       rootStore.selectedCities([existingOption.properties.iso_a3]);
       setSelectedLocations([existingOption.properties.iso_a3]);
     }
-    handleBtnClick();
-  }, [pathName, isLoaded]);
+    // rootStore.setApiData(fetchedData);
+    // rootStore.setHeaderControls({beginDate: moment(preloadedData.beginDate), endDate: moment(preloadedData.endDate), viewMode: preloadedData.interval});
+  }, [pathName]);
 
   const handleBtnClick = async () => {
-    if (!isLoaded) return;
     const yesterday = moment(new Date()).subtract(1, "days");
 
     if (rootStore?.headerControls?.endDate < rootStore?.headerControls?.beginDate) {
@@ -95,13 +95,34 @@ export const ControlHeaderClient = observer(({ preloadedData }: { preloadedData:
       } catch (e) {
         console.error("Error!", e);
       }
+    } else {
+      try {
+        const data = await fetchHistoricalDataForMultipleCities({
+          start_date: momentDateToString(rootStore.headerControls.beginDate),
+          end_date: momentDateToString(rootStore.headerControls.endDate),
+          latitude: rootStore.latutudes,
+          longitude: rootStore.longitudes,
+          timezone: rootStore.selectedLocation?.location?.timezone ?? "auto",
+          hourly: [
+            WeatherParams.temperature_2m,
+            WeatherParams.precipitation,
+            WeatherParams.rain,
+            WeatherParams.snowfall,
+            WeatherParams.weather_code,
+            WeatherParams.cloud_cover,
+          ],
+        });
+        rootStore.setApiData(data);
+      } catch (e) {
+        console.error("Error!", e);
+      }
     }
   };
 
-  if (!isLoaded) return <div className="h-16 bg-blue-500 opacity-0"></div>;
+  // if (!isLoaded) return <div className="h-16 bg-blue-500 opacity-0"></div>;
 
   return (
-    <div className="min-h-[60px] w-full">
+    <div className="min-h-full w-full">
   {/* Reserve space for Toast */}
   {/* <div className="min-h-[60px]"> */}
     <Toast ref={toast} />
@@ -153,12 +174,12 @@ export const ControlHeaderClient = observer(({ preloadedData }: { preloadedData:
       <div className="flex flex-wrap items-center gap-3">
         {/* DateBox Components with reserved space */}
         <DateBox
-          defaultValue={momentDateToString(moment(beginDate) ?? rootStore.headerControls.beginDate)}
+          defaultValue={momentDateToString(rootStore.headerControls.beginDate)}
           onChange={(e) => rootStore.setHeaderControls({ beginDate: moment(e.value) })}
           style={{ width: "150px", height: "40px" }}
         />
         <DateBox
-          defaultValue={momentDateToString(moment(endDate) ?? rootStore.headerControls.endDate)}
+          defaultValue={momentDateToString(rootStore.headerControls.endDate)}
           onChange={(e) => rootStore.setHeaderControls({ endDate: moment(e.value) })}
           style={{ width: "150px", height: "40px" }}
         />
@@ -176,17 +197,16 @@ export const ControlHeaderClient = observer(({ preloadedData }: { preloadedData:
 
   {/* Secondary Toolbar */}
   <Toolbar
-    className="p-3 flex items-center min-h-[60px]"
+    className="p-3 flex items-center h-[60px] min-h-[70px] min-w-[100px]"
     left={
-      <span className="font-semibold text-white">Time Interval:</span>
+      <span className="font-semibold text-blue">Time Interval:</span>
     }
     right={
       <SelectButton
-        value={interval ?? rootStore.headerControls.viewMode}
+        value={rootStore.headerControls.viewMode}
         onChange={(e) => rootStore.setHeaderControls({ viewMode: e.value })}
         optionLabel="name"
         options={intervalOptions}
-        style={{ minWidth: "200px" }}
       />
     }
   />
