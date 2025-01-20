@@ -68,13 +68,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {/* Wrap the layout in the RootStoreProvider */}
         <RootStoreProvider userLocation={userLocation}>
           <div className="fixed flex flex-col top-0 left-0 h-screen w-screen">
-            <div>Hello</div>
             {/* Use the Server Component */}
             <ControlHeaderClient  />
             <div className="flex w-full h-full items-center flex-grow p-5">
               <Sidebar />
               <div className="divider divider-horizontal"></div>
-              <div className="min-w-full min-h-full w-full h-full relative">{children}</div>
+              <div className="w-full h-full relative">{children}</div>
             </div>
           </div>
         </RootStoreProvider>

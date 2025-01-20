@@ -34,6 +34,10 @@ export const ControlHeaderClient = observer(() => {
   const toast = useRef<Toast>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  useEffect(() => {
+    setVal(rootStore.selectedLocation?.name ?? '')
+  }, [rootStore.selectedLocation])
+
   const intervalOptions = [
     { name: "Auto", value: "auto" },
     { name: "Hourly", value: "hourly" },
@@ -122,7 +126,7 @@ export const ControlHeaderClient = observer(() => {
   // if (!isLoaded) return <div className="h-16 bg-blue-500 opacity-0"></div>;
 
   return (
-    <div className="min-h-full w-full">
+    <div className="min-w-full w-full">
   {/* Reserve space for Toast */}
   {/* <div className="min-h-[60px]"> */}
     <Toast ref={toast} />
@@ -197,7 +201,7 @@ export const ControlHeaderClient = observer(() => {
 
   {/* Secondary Toolbar */}
   <Toolbar
-    className="p-3 flex items-center h-[60px] min-h-[70px] min-w-[100px]"
+    className="p-3 flex items-center justify-between h-[60px] min-h-[70px] min-w-full"
     left={
       <span className="font-semibold text-blue">Time Interval:</span>
     }
@@ -207,6 +211,7 @@ export const ControlHeaderClient = observer(() => {
         onChange={(e) => rootStore.setHeaderControls({ viewMode: e.value })}
         optionLabel="name"
         options={intervalOptions}
+        className="flex justify-self-end"
       />
     }
   />

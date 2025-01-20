@@ -1,6 +1,6 @@
 "use client";
 import { observer } from "mobx-react-lite";
-import { Suspense, useContext, useEffect, useMemo, useState } from "react";
+import { Suspense, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import TableLegend from "@/components/TableLegend/TableLegend";
 import LineChart from "@/components/TemperatureChart/LineChart";
@@ -13,6 +13,7 @@ import { useCollectWebVitals } from "@/hooks/useWebReportVitals";
 
 const DashboardContainer = observer(({initData}: {initData: any}) => {
   const rootStore = useContext(rootStoreContext);
+  const isInitRender = useRef(true);
   if (!rootStore) {
     console.error("RootStore is not available.");
     return <div>Unable to load data. Please try again later.</div>;
@@ -22,12 +23,20 @@ const DashboardContainer = observer(({initData}: {initData: any}) => {
   const [chartData, setChartData] = useState<any>({});
   const [tableData, setTableData] = useState<any[]>([]);
   const [colors, setColors] = useState<string[]>([]);
-  useEffect(() => {rootStore.setApiData(initData)}, []); 
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    if(isInitRender && initData.length) {
+        setData(initData);
+        rootStore.setApiData(initData)
+        isInitRender.current = false;
+    }
+  }, []);
   useMemo(() => {
-    console.log(rootStore?.selectedLocation);
-    if (rootStore?.apiData?.length) {
+    
+    if (data.length) {
       const { weatherData, tableData, colors } = generateDashboardData(
-        rootStore.apiData,
+        data,
         rootStore.openMeteoParams(),
         rootStore.headerControls.viewMode,
         rootStore.selectedLocation,
@@ -46,7 +55,7 @@ const DashboardContainer = observer(({initData}: {initData: any}) => {
     }
     setIsLoading(false);
   }, [
-    rootStore.apiData,
+    data,
     rootStore.headerControls.viewMode
   ]);
 
@@ -65,12 +74,12 @@ const DashboardContainer = observer(({initData}: {initData: any}) => {
           className="h-full bg-white col-span-2 rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative p-3 overflow-hidden"
         >
           <Suspense fallback={<div>Loading Weather Data...</div>}>
-          <TableLegend tableData={tableData} cityColors={colors} />
+            <TableLegend tableData={tableData} cityColors={colors} />
           </Suspense>
         </div>
         <div
           id="current-weather-card"
-          className=" g-white rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative h-full p-3"
+          className="bg-white rounded-md shadow-[0_2px_1px_-1px_rgba(0,_0,_0,_0.2),_0_1px_1px_0_rgba(0,_0,_0,_0.14),_0_1px_3px_0_rgba(0,_0,_0,_0.12)] relative h-full p-3"
         >
         <Suspense fallback={<div>Loading Weather Data...</div>}>
             {/* Use the async Server Component */}

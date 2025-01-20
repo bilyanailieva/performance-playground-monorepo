@@ -2,9 +2,13 @@
 import DashboardContainerWrapper from "@/components/DashboardContainerWrapper";
 import { rootStoreContext } from "@/components/RootStoreProvider";
 import { observer } from "mobx-react-lite";
+import { useReportWebVitals } from "next/web-vitals";
 import { useContext } from "react";
 
 const DashboardContainer = observer(() => {
+  useReportWebVitals((metric: any) => {
+    console.log(metric);
+  })
   const rootStore = useContext(rootStoreContext);
 
   if (!rootStore) {
