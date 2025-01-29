@@ -1,11 +1,7 @@
 // src/app/layout.tsx
-import ControlHeaderServer from "@/components/ControlHeader/ControlHeaderSSR";
 import RootStoreProvider from "@/components/RootStoreProvider";
 import "primereact/resources/themes/lara-light-blue/theme.css";
 import "./globals.css";
-import RootStore from "@/stores/RootStore";
-import { getLocation } from "@/helper/LocationHelper";
-import { useCollectWebVitals } from "@/hooks/useWebReportVitals";
 import dynamic from "next/dynamic";
 import ControlHeaderClient from "@/components/ControlHeader/ControlHeaderClient";
 const Sidebar = dynamic(() => import("@/components/Sidebar"), { ssr: false });
@@ -51,25 +47,33 @@ async function fetchUserLocation() {
       id: -1,
       country: "Default Country",
       location: {
-        latitude: 40.7128, // Default latitude (e.g., New York City)
-        longitute: -74.006, // Default longitude
-        timezone: "America/New_York", // Default timezone
+        latitude: 42.6833, // Default latitude (e.g., Sofia)
+        longitute: 23.3167, // Default longitude
+        timezone: "Europe/Sofia", // Default timezone
       },
     };
   }
 }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const userLocation = await fetchUserLocation(); // Fetch the user location server-side
-  
+
   return (
     <html lang="en">
+      <head>
+        {" "}
+        <link rel="preload" />
+      </head>
       <body>
         {/* Wrap the layout in the RootStoreProvider */}
         <RootStoreProvider userLocation={userLocation}>
           <div className="fixed flex flex-col top-0 left-0 h-screen w-screen">
             {/* Use the Server Component */}
-            <ControlHeaderClient  />
+            <ControlHeaderClient />
             <div className="flex w-full h-full items-center flex-grow p-5">
               <Sidebar />
               <div className="divider divider-horizontal"></div>

@@ -15,13 +15,12 @@ const TableLegend = dynamic(
 import { generateComboChartData } from "@/utils/DataFormatters";
 import { observer } from "mobx-react-lite";
 import dynamic from "next/dynamic";
-import { useContext, useEffect, useState } from "react";
+import { Profiler, useContext, useEffect, useState } from "react";
 import {
   WeatherParams,
   fetchHistoricalDataForMultipleCities,
 } from "../../service/OpenMeteoService";
 import { rootStoreContext } from "../layout";
-
 const ComboChartPage = observer(() => {
   const rootStore = useContext(rootStoreContext);
   // const { selectedLocation, headerControls } = rootStore;
@@ -110,6 +109,7 @@ const ComboChartPage = observer(() => {
   };
 
   return (
+    <Profiler id="ComboChartPageCLIENTPage" onRender={() => console.log('I rendered')}>
     <div className="w-full h-full grid gap-4 grid-cols-[50%_1fr] grid-rows-[100%_1fr]">
       <div className="grid gap-4 grid-rows-[50%_1fr]">
         <div
@@ -144,6 +144,7 @@ const ComboChartPage = observer(() => {
         </div>
       </div>
     </div>
+    </Profiler>
   );
 });
 

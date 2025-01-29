@@ -2,7 +2,7 @@
 import { useReportWebVitals } from "next/web-vitals";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
-import { useEffect, useState } from "react";
+import { Profiler, useEffect, useState } from "react";
 import styles from "./TableLegend.module.scss";
 import {Button} from '@my-org/shared-components';
 
@@ -39,6 +39,7 @@ const TableLegend = (props: TableLegendProps) => {
   };
 
   return props?.tableData?.length ? (
+    <Profiler id='DATATBLE' onRender={() => console.log('i rendered')}>
     <div className="relative w-full h-full overflow-hidden">
       {/* Following line is just for testing */}
       <Button label={'Test'} onClick={() => {}}/>
@@ -95,6 +96,7 @@ const TableLegend = (props: TableLegendProps) => {
         ></Column>
       </DataTable>
     </div>
+    </Profiler>
   ) : (
     <></>
   );

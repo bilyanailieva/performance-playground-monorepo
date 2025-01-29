@@ -12,7 +12,7 @@ export default function CurrentWeatherCardClient({ weatherData, location }: { we
   return (
     <div className={styles.weatherCard}>
       <h2>{location?.name ?? "Unknown Location"}</h2>
-      {weatherCode.icon}
+      {weatherCode?.icon}
       <div>
         <p className="font-extrabold text-3xl">{temperature2m?.toFixed()}°C</p>
         <p>Feels like {apparentTemperature?.toFixed()}°C</p>

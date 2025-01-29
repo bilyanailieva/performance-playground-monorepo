@@ -1,12 +1,13 @@
 "use client";
-import { ControlHeader } from "@/components/ControlHeader";
 import ControlHeaderSSR from "@/components/ControlHeaderSSR";
-import Sidebar from "@/components/Sidebar";
 import RootStore from "@/stores/RootStore";
 import { usePathname } from "next/navigation";
 import "primereact/resources/themes/lara-light-blue/theme.css";
 import { createContext } from "react";
 import "./globals.css";
+import ControlHeader from "@/components/ControlHeader";
+import Sidebar from "@/components/Sidebar";
+
 
 const rootStore = new RootStore();
 export const rootStoreContext = createContext(rootStore);

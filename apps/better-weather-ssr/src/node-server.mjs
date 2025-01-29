@@ -16,13 +16,6 @@ server.use(cors());
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 
-const fetchWithAxios = async () => {
-  const resp = await axios.get(
-    "https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.405&daily=temperature_2m_max,temperature_2m_min&timezone=Europe/Berlin"
-  );
-  return resp.data;
-};
-
 const fetchOpenMeteoData = async (url, params) => {
   try {
     const resp = await axios.get(url, { params });

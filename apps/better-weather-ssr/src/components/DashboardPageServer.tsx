@@ -3,7 +3,11 @@ import { WeatherParams, fetchForecastData } from "@/service/OpenMeteoService";
 import { momentDateToString } from "@/utils/FormatDate";
 import DashboardContainer from "./DashboardPageContainer";
 
-const fetchInitData = async (beginDate: any, endDate: any, userLocation: any) => {
+const fetchInitData = async (
+  beginDate: any,
+  endDate: any,
+  userLocation: any
+) => {
   if (!beginDate || !endDate || !userLocation?.location) return null;
   try {
     return await fetchForecastData({
@@ -39,7 +43,11 @@ export default async function DashboardPageServer({
   const data = await fetchInitData(beginDate, endDate, userLocation);
 
   if (!data) {
-    return <div>No data available. Please try again.</div>;
+    return (
+      <div className="min-h-full w-full h-full grid grid-cols-[100%_1fr] grid-rows-[100%_1fr]">
+        No data available. Please try again.
+      </div>
+    );
   }
 
   return <DashboardContainer initData={data} />;

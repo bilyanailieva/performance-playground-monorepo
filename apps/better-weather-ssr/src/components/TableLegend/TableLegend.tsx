@@ -1,5 +1,4 @@
 "use client";
-import { useReportWebVitals } from "next/web-vitals";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { useEffect, useState } from "react";
@@ -9,7 +8,6 @@ import {Button} from '@my-org/shared-components';
 type TableLegendProps = {
   tableData: any[];
   cityColors: string[];
-  // onSelectionChange: (data: any[]) => void;
 };
 
 const TableLegend = (props: TableLegendProps) => {

@@ -14,9 +14,14 @@ import {
   getForecastDataParams,
 } from "../service/OpenMeteoService";
 import { rootStoreContext } from "./layout";
+import { useReportWebVitals } from "next/web-vitals";
 
 const DashboardContainer = observer(() => {
   const rootStore = useContext(rootStoreContext);
+
+  // useReportWebVitals((metric) => {
+  //   console.log(metric)
+  // })
   const { selectedLocation, headerControls } = rootStore;
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<any>(null);

@@ -22,55 +22,9 @@ export const generateLineChartData = (
     if(interval === 'auto') {
       interval = chooseInterval(apiData[0].timeRange);
     }
-    // if (interval === "monthly") {
-    //   data = getMonthlyLineData(apiData, cityColors);
-    // } else if (field === "minMax") {
     data = getDailyLineData(apiData, interval, cityColors, location);
-    // }
-    //  else if (interval === "daily") {
-    //   data = getDailyMeanLineData(apiData, cityColors);
-    // }
   }
   return data;
-};
-
-const getMonthlyLineData = (apiData: any, cityColors: string[]) => {
-  const timesteps = getTimestepsByTimeRange(apiData[0].timeRange, "monthly");
-  const finalData: any[] = [];
-  apiData.forEach((cityInfo: any, index: number) => {
-    const entryData: any = {};
-    cityInfo.time.forEach((timestamp: Moment, index: number) => {
-      const month = moment(timestamp).format("MMM-yy");
-      if (!entryData[month]) {
-        entryData[month] = [];
-      }
-      const value = cityInfo.temperature2m[index];
-      if (!isNaN(value)) {
-        entryData[month].push(value);
-      }
-    });
-    const entryFinal = Object.keys(entryData).map((data) => {
-      return calculateMean(entryData[data])?.toFixed(1);
-    });
-    const cityName = europeanCapitals.features.find(
-      (feature) =>
-        feature.properties.latitude?.toFixed(2) ===
-          cityInfo.coords.latitude.toFixed(2) &&
-        feature.properties.longitude?.toFixed(2) ===
-          cityInfo.coords.longitude.toFixed(2)
-    );
-    finalData.push({
-      label: cityName?.properties?.name ?? "Hello",
-      data: entryFinal,
-      borderColor: cityColors[index],
-      pointBackgroundColor: cityColors[index],
-      fill: false,
-      tension: 1,
-      yAxisID: "yAxis",
-      xAxisID: "xAxis",
-    });
-  });
-  return { datasets: finalData, labels: timesteps };
 };
 
 const getDailyLineData = (

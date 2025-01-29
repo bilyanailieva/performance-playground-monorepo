@@ -13,7 +13,6 @@ export const generateComboChartData = (
   let chartData: any = [];
   let tableData: any[] = [];
   let colors: string[] = [];
-  console.log(apiData)
 
   if (!apiData.length) return { weatherData: chartData, tableData, colors };
   colors = generateColors(queryParams.longitude);
@@ -68,27 +67,6 @@ export const generateComboChartData = (
       weatherData.temperature2m.push(entry.temperature_2m);
       weatherData.rain.push(entry.rain + entry.snowfall);
       weatherData.cloudCover.push(entry.cloudCover);
-
-      // Push the transformed data for the nested table
-      // let existingRow = tableData.find((row) => row.datetime === entry.timestamp);
-
-      // if (!existingRow) {
-      //   existingRow = {
-      //     datetime: entry.timestamp,
-      //     metrics: [
-      //       { metric: "Temperature", [cityName]: entry.temperature_2m },
-      //       { metric: "Cloud Cover", [cityName]: entry.cloudCover },
-      //       { metric: "Precipitation", [cityName]: entry.rain },
-      //     ],
-      //   };
-      //   tableData.push(existingRow);
-      // } else {
-      //   existingRow.metrics.forEach((metricRow: any) => {
-      //     if (metricRow.metric === "Temperature") metricRow[cityName] = entry.temperature_2m;
-      //     if (metricRow.metric === "Cloud Cover") metricRow[cityName] = entry.cloudCover;
-      //     if (metricRow.metric === "Precipitation") metricRow[cityName] = entry.rain;
-      //   });
-      // }
     });
     tableEntry.avgTemp = calculateMean(weatherData.temperature2m);
     tableEntry.presipitationSum = weatherData.rain.reduce(
@@ -97,7 +75,7 @@ export const generateComboChartData = (
     );
     tableEntry.minTemp = Math.min(...weatherData.temperature2m);
     tableEntry.maxTemp = Math.max(...weatherData.temperature2m);
-tableData.push(tableEntry)
+    tableData.push(tableEntry)
     chartData.push(weatherData);
   });
 

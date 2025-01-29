@@ -27,9 +27,6 @@ export const ControlHeaderClient = observer(() => {
   }
   const [val, setVal] = useState(rootStore.selectedLocation?.name ?? "");
   const [selectedLocations, setSelectedLocations] = useState<any[]>([]);
-  // const [interval, setInterval] = useState(preloadedData.defaultInterval);
-  // const [beginDate, setBeginDate] = useState(preloadedData.beginDate);
-  // const [endDate, setEndDate] = useState(preloadedData.endDate);
   const pathName = usePathname();
   const toast = useRef<Toast>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -44,11 +41,6 @@ export const ControlHeaderClient = observer(() => {
     { name: "Daily", value: "daily", disabled: rootStore.currentTimeRangeInDays() < 2 },
     { name: "Monthly", value: "monthly", disabled: rootStore.currentTimeRangeInDays() < 90 }
   ];
-
-  // // Ensure styles are applied before rendering
-  // useEffect(() => {
-  //   setIsLoaded(true);
-  // }, []);
 
   useEffect(() => {
 
@@ -69,8 +61,6 @@ export const ControlHeaderClient = observer(() => {
       rootStore.selectedCities([existingOption.properties.iso_a3]);
       setSelectedLocations([existingOption.properties.iso_a3]);
     }
-    // rootStore.setApiData(fetchedData);
-    // rootStore.setHeaderControls({beginDate: moment(preloadedData.beginDate), endDate: moment(preloadedData.endDate), viewMode: preloadedData.interval});
   }, [pathName]);
 
   const handleBtnClick = async () => {
@@ -123,15 +113,10 @@ export const ControlHeaderClient = observer(() => {
     }
   };
 
-  // if (!isLoaded) return <div className="h-16 bg-blue-500 opacity-0"></div>;
 
   return (
     <div className="min-w-full w-full">
-  {/* Reserve space for Toast */}
-  {/* <div className="min-h-[60px]"> */}
     <Toast ref={toast} />
-  {/* </div> */}
-
   {/* Main Toolbar */}
   <Toolbar
     className="p-3 bg-blue-500 rounded-none w-full min-h-[60px] flex items-center justify-between"

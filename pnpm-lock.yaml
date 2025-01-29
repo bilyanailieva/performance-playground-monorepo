@@ -274,6 +274,9 @@ importers:
       '@my-org/shared-components':
         specifier: workspace:*
         version: link:../../packages/shared-components
+      '@openmeteo/sdk':
+        specifier: ^1.18.0
+        version: 1.18.0
       '@tabler/icons':
         specifier: ^3.5.0
         version: 3.20.0

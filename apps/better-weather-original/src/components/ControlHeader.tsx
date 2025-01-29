@@ -9,7 +9,7 @@ import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { MultiSelect } from "primereact/multiselect";
 import { Toolbar } from "primereact/toolbar";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useId, useState } from "react";
 import { getLocationByName } from "../helper/LocationHelper";
 import { DateBox } from "./Calendar";
 
@@ -19,47 +19,44 @@ export const ControlHeader = observer(() => {
   const [selectedLocations, setSelectedLocations] = useState<any[]>([]);
   const [options, setOptions] = useState(europeanCapitals.features);
 
-  const searchParams = useSearchParams();
   const pathName = usePathname();
-  const router = useRouter();
-  const params = new URLSearchParams(searchParams.toString());
 
-  // useEffect(() => {
-  //   if (rootStore.activeTab !== "dashboard") {
-  //     rootStore.setHeaderControls({
-  //       beginDate: moment().subtract(7, "days").format("YYYY-MM-DD"),
-  //       endDate: moment().subtract(1, "day").format("YYYY-MM-DD"),
-  //     });
-  //   } else {
-  //     rootStore.setHeaderControls({
-  //       endDate: moment().add(7, "days").format("YYYY-MM-DD"),
-  //       beginDate: moment().startOf("day").format("YYYY-MM-DD"),
-  //     });
-  //   }
-  //   console.log(selectedLocations, rootStore.selectedLocation);
-  //   if (!selectedLocations.length && rootStore.selectedLocation) {
-  //     const location = rootStore.selectedLocation;
-  //     const info = {
-  //       properties: {
-  //         iso_a3: "myLocation",
-  //         latitude: rootStore.selectedLocation.location?.latitude,
-  //         longitude: rootStore.selectedLocation.location?.longitute,
-  //         capital: rootStore.selectedLocation.name,
-  //         timezone: rootStore.selectedLocation.location?.timezone,
-  //       },
-  //     };
-  //     setOptions([info as Feature, ...europeanCapitals.features]);
-  //     setSelectedLocations([info.properties.iso_a3]);
-  //     rootStore.setSelectedCitiesInfo({
-  //       iso_a3: location.id?.toString() ?? useId(),
-  //       latitude: location.location?.latitude,
-  //       longitude: location.location?.longitute,
-  //       capital: location.name,
-  //       timezone: location.location?.timezone,
-  //     });
-  //     console.log("here");
-  //   }
-  // }, [rootStore.activeTab]);
+  useEffect(() => {
+    if (rootStore.activeTab !== "dashboard") {
+      rootStore.setHeaderControls({
+        beginDate: moment().subtract(7, "days").format("YYYY-MM-DD"),
+        endDate: moment().subtract(1, "day").format("YYYY-MM-DD"),
+      });
+    } else {
+      rootStore.setHeaderControls({
+        endDate: moment().add(7, "days").format("YYYY-MM-DD"),
+        beginDate: moment().startOf("day").format("YYYY-MM-DD"),
+      });
+    }
+    console.log(selectedLocations, rootStore.selectedLocation);
+    if (!selectedLocations.length && rootStore.selectedLocation) {
+      const location = rootStore.selectedLocation;
+      const info = {
+        properties: {
+          iso_a3: "myLocation",
+          latitude: rootStore.selectedLocation.location?.latitude,
+          longitude: rootStore.selectedLocation.location?.longitute,
+          capital: rootStore.selectedLocation.name,
+          timezone: rootStore.selectedLocation.location?.timezone,
+        },
+      };
+      setOptions([info as any, ...europeanCapitals.features]);
+      setSelectedLocations([info.properties.iso_a3]);
+      rootStore.setSelectedCitiesInfo({
+        iso_a3: location.id?.toString() ?? useId(),
+        latitude: location.location?.latitude,
+        longitude: location.location?.longitute,
+        capital: location.name,
+        timezone: location.location?.timezone,
+      });
+      console.log("here");
+    }
+  }, [rootStore.activeTab]);
 
   useEffect(() => {
     setVal(rootStore.selectedLocation?.name ?? "");
@@ -146,4 +143,4 @@ export const ControlHeader = observer(() => {
   );
 });
 
-export default Toolbar;
+export default ControlHeader;

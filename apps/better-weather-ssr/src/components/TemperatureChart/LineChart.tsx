@@ -48,7 +48,7 @@ const LineChart = (props: LineChartProps) => {
   {isLoading ? (
     // Skeleton loader with reserved dimensions
     <div className="relative w-full h-full flex flex-col items-center justify-center min-h-[300px]">
-      <p className="animate-pulse text-gray-400">Loading...</p>
+      <p className="animate-pulse text-gray-400 w-full h-full">Loading...</p>
     </div>
   ) : chartData?.datasets?.length ? (
     <div className="relative w-full h-full flex flex-col items-center justify-center min-h-[300px]">

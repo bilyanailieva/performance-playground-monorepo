@@ -127,7 +127,7 @@ export const fetchHistoricalDataForMultipleCities = async (params: any) => {
     return [];
   }
   console.log("here");
-  const responses = await axios.get("http://localhost:8080/history", {
+  const responses = await axios.get("http://localhost:8081/history", {
     params: params,
     paramsSerializer: (params) => {
       // Custom serializer to correctly handle array parameters
@@ -154,7 +154,7 @@ export const fetchForecastData = async (params: any) => {
   ) {
     return [];
   }
-  const responses = await axios.get("http://localhost:8080/forecast", {
+  const responses = await axios.get("http://localhost:8081/forecast", {
     params: params,
     paramsSerializer: (params) => {
       // Custom serializer to correctly handle array parameters

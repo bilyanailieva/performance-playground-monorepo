@@ -121,6 +121,7 @@ export const ControlHeader = observer(() => {
     } else {
       console.log("prepare historical presentation data here ");
       try {
+        const start = performance.now();
         const data = await fetchHistoricalDataForMultipleCities({
           start_date: momentDateToString(rootStore.headerControls.beginDate),
           end_date: momentDateToString(rootStore.headerControls.endDate),
@@ -136,6 +137,8 @@ export const ControlHeader = observer(() => {
             WeatherParams.cloud_cover,
           ],
         });
+        const end = performance.now();
+        console.log(`${end - start} ms to fetch data`);
         rootStore.setApiData(data);
       } catch (e) {
         console.error("Error!", e);

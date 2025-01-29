@@ -1,11 +1,5 @@
 "use client";
 
-import { useCollectWebVitals } from "@/hooks/useWebReportVitals";
-import { WeatherParams, fetchForecastData } from "@/service/OpenMeteoService";
-import { momentDateToString } from "@/utils/FormatDate";
-import { useReportWebVitals } from "next/web-vitals";
-import { Profiler } from "react";
-
 export default function DashboardLayout({
   children,
 }: {
